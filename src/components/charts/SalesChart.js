@@ -6,43 +6,14 @@ import { CircularProgress } from '@mui/material'
 ChartJS.register(ArcElement, Title, Tooltip, Legend)
 
 const SalesChart = ({ dataset, isLoading, hasData }) => {
-  // Sort data alphabetically before processing
-  const sortedData = useMemo(() => {
-    if (!dataset?.labels?.length) {
-      return { labels: [], amounts: [], colors: [] }
-    }
-
-    const labels = dataset.labels || []
-    const amounts = dataset.amounts || []
-    const colors = dataset.colors || []
-
-    // Create array of objects with label, amount, and color
-    const dataWithLabels = labels.map((label, index) => ({
-      label: String(label || ''),
-      amount: Number(amounts[index]) || 0,
-      color: colors[index] || '#cccccc',
-    }))
-
-    // Sort alphabetically by label (A → Z)
-    const sorted = dataWithLabels.sort((a, b) =>
-      a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
-    )
-
-    return {
-      labels: sorted.map(item => item.label),
-      amounts: sorted.map(item => item.amount),
-      colors: sorted.map(item => item.color),
-    }
+  const totalAmount = useMemo(() => {
+    return (dataset?.amounts || []).reduce((sum, amount) => sum + amount, 0)
   }, [dataset])
 
-  const totalAmount = useMemo(() => {
-    return (sortedData?.amounts || []).reduce((sum, amount) => sum + amount, 0)
-  }, [sortedData])
-
   const pieData = useMemo(() => {
-    const labels = sortedData.labels || []
-    const amounts = sortedData.amounts || []
-    const colors = sortedData.colors || []
+    const labels = dataset?.labels || []
+    const amounts = dataset?.amounts || []
+    const colors = dataset?.colors || []
 
     return {
       labels,
@@ -55,7 +26,7 @@ const SalesChart = ({ dataset, isLoading, hasData }) => {
         },
       ],
     }
-  }, [sortedData])
+  }, [dataset])
 
   const chartOptions = useMemo(
     () =>
@@ -71,21 +42,22 @@ const SalesChart = ({ dataset, isLoading, hasData }) => {
     const amounts = pieData.datasets?.[0]?.data || []
     const colors = pieData.datasets?.[0]?.backgroundColor || []
 
-    return labels.map((label, index) => {
-      const amount = Number(amounts[index]) || 0
-      return {
-        label,
-        amount,
-        color: colors[index],
-        percentage: computePercentage(amount, totalAmount),
-      }
-    })
+    return labels
+      .map((label, index) => {
+        const amount = Number(amounts[index]) || 0
+        return {
+          label,
+          amount,
+          color: colors[index],
+          percentage: computePercentage(amount, totalAmount),
+        }
+      })
+      .sort((a, b) => a.label.localeCompare(b.label))
   }, [pieData, totalAmount])
 
   const legendColumns = useMemo(() => {
     if (!legendItems.length) return []
-    // Use 2-3 columns based on item count for better layout
-    const columnCount = legendItems.length <= 6 ? 2 : 3
+    const columnCount = 3
     const itemsPerColumn = Math.ceil(legendItems.length / columnCount)
 
     return Array.from({ length: columnCount }, (_, index) =>
@@ -109,35 +81,6 @@ const SalesChart = ({ dataset, isLoading, hasData }) => {
           </div>
         )}
       </div>
-      <hr className="w-full border-t border-gray-200" />
-      {legendColumns.length > 0 && (
-        <div className="w-full mt-4 px-4">
-          <div className="chart-legend">
-            {legendColumns.map((column, columnIndex) => (
-              <div key={`legend-column-${columnIndex}`} className="chart-legend__column">
-                {column.map(item => (
-                  <div key={item.label} className="chart-legend__item">
-                    <span
-                      className="chart-legend__indicator"
-                      style={{ backgroundColor: item.color }}
-                    />
-                    <div className="chart-legend__content">
-                      <span className="chart-legend__label">{item.label}</span>
-                      <span className="chart-legend__value">
-                        ₹{item.amount.toLocaleString('en-IN', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}{' '}
-                        ({item.percentage})
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

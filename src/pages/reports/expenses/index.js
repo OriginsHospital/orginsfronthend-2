@@ -69,8 +69,10 @@ const Expenses = () => {
           // Ensure branch data is properly structured
           branch: expense.branch || {
             id: expense.branchId,
-            name: dropdowns?.branches?.find(b => b.id === expense.branchId)?.name || 'Unknown Branch'
-          }
+            name:
+              dropdowns?.branches?.find(b => b.id === expense.branchId)?.name ||
+              'Unknown Branch',
+          },
         }))
         return transformedData
       } else {
@@ -197,7 +199,7 @@ const Expenses = () => {
     // Added Branch column - copied from Orders report structure
     {
       field: 'branch',
-      headerName: 'main',
+      headerName: 'Branch',
       width: 120,
       flex: 0.6,
       renderCell: params => {
@@ -206,9 +208,7 @@ const Expenses = () => {
 
         return (
           <Tooltip title={branchName}>
-            <span className="truncate">
-              {branchName}
-            </span>
+            <span className="truncate">{branchName}</span>
           </Tooltip>
         )
       },
@@ -225,7 +225,7 @@ const Expenses = () => {
           <Tooltip title={params?.row.category?.categoryName}>
             <span
               className="truncate"
-            // title={params?.row.category?.categoryName}
+              // title={params?.row.category?.categoryName}
             >
               {params?.row.category?.categoryName}
             </span>
@@ -244,7 +244,7 @@ const Expenses = () => {
           <Tooltip title={params?.row.subCategory?.subCategoryName}>
             <span
               className="truncate"
-            // title={params?.row.subCategory?.subCategoryName}
+              // title={params?.row.subCategory?.subCategoryName}
             >
               {params?.row.subCategory?.subCategoryName}
             </span>
@@ -284,7 +284,7 @@ const Expenses = () => {
                 maxWidth: '100%',
                 wordWrap: 'break-word',
                 whiteSpace: 'pre-wrap',
-                overflow: 'visible'
+                overflow: 'visible',
               }}
             >
               {params.row.description || 'No description'}
@@ -539,10 +539,10 @@ const Expenses = () => {
           toolbar: {
             data: expencesData || [],
             columns,
-            reportName: "Expenses_Report",
-            reportType: "expenses",
-            branchName: "All_Branches",
-            filters: {}
+            reportName: 'Expenses_Report',
+            reportType: 'expenses',
+            branchName: 'All_Branches',
+            filters: {},
           },
         }}
       />
@@ -551,7 +551,7 @@ const Expenses = () => {
         uniqueKey={'Expense'}
         closeOnOutsideClick={false}
         maxWidth={'sm'}
-      // handleClose={handleClose}
+        // handleClose={handleClose}
       >
         <div className="flex justify-between">
           <span className="text-2xl font-semibold text-secondary">

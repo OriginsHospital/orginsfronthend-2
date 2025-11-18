@@ -19,156 +19,105 @@ import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-function SalesNew() {
+function Sales() {
   const userDetails = useSelector(store => store.user)
   const dropdowns = useSelector(store => store.dropdowns)
-  // Initialize with current date for fromDate and 30 days ago for toDate
-  const [fromDate, setFromDate] = useState(dayjs().subtract(30, 'days').toDate())
-  const [toDate, setToDate] = useState(dayjs().toDate())
+  const [fromDate, setFromDate] = useState(new Date())
+  const [toDate, setToDate] = useState(new Date())
   const [branchId, setBranchId] = useState('')
-  const [paymentMode, setPaymentMode] = useState('ALL')
+  const [paymentMode, setPaymentMode] = useState('')
   const [activeView, setActiveView] = useState('sales') // 'sales' or 'refunds'
   const [filteredData, setFilteredData] = useState(null)
 
   // Applied filters (used to trigger API)
-  const [appliedFromDate, setAppliedFromDate] = useState(dayjs().subtract(30, 'days').toDate())
-  const [appliedToDate, setAppliedToDate] = useState(dayjs().toDate())
+  const [appliedFromDate, setAppliedFromDate] = useState(null)
+  const [appliedToDate, setAppliedToDate] = useState(null)
   const [appliedBranchId, setAppliedBranchId] = useState('')
-  const [appliedPaymentMode, setAppliedPaymentMode] = useState('ALL')
 
-  // Set initial branch and handle branch data loading
   useEffect(() => {
     if (dropdowns?.branches?.length > 0) {
-      const defaultBranch = dropdowns.branches[0].id;
-      setBranchId(defaultBranch);
-      setAppliedBranchId(defaultBranch); // Set applied branch ID immediately
-  setAppliedPaymentMode('ALL');
-      console.log('Setting default branch:', defaultBranch);
+      setBranchId(dropdowns.branches[0].id)
     }
-  }, [dropdowns]);
+  }, [dropdowns])
 
-  // Validate and update applied filters
+  // Initialize applied filters once branch is available
   useEffect(() => {
-    // Validate dates
-    const isValidDateRange = dayjs(fromDate).isBefore(dayjs(toDate));
-    if (!isValidDateRange) {
-      console.error('Invalid date range:', { fromDate, toDate });
-      return;
+    if (branchId && !appliedBranchId) {
+      setAppliedBranchId(branchId)
+      setAppliedFromDate(fromDate)
+      setAppliedToDate(toDate)
     }
+  }, [branchId, fromDate, toDate])
 
-    // Update applied filters if all values are valid
-    if (branchId && fromDate && toDate) {
-      console.log('Updating applied filters:', {
-        branchId,
-        fromDate: dayjs(fromDate).format('YYYY-MM-DD'),
-        toDate: dayjs(toDate).format('YYYY-MM-DD')
-      });
-      
-      setAppliedBranchId(branchId);
-      setAppliedFromDate(fromDate);
-      setAppliedToDate(toDate);
-      // Ensure applied payment mode is set (default ALL)
-      setAppliedPaymentMode(paymentMode || 'ALL');
-    }
-  }, [branchId, fromDate, toDate]);
-
-  const { data: salesDashboardData, isLoading, isError, error, refetch } = useQuery({
+  const {
+    data: salesDashboardData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: [
-      'salesDashboardDataNew',
+      'salesDashboardData',
       userDetails.accessToken,
       appliedFromDate,
       appliedToDate,
       appliedBranchId,
-      appliedPaymentMode,
     ],
     queryFn: async () => {
-      try {
-        // Validate all required parameters
-        if (!userDetails?.accessToken) throw new Error('Authentication token is missing');
-        if (!appliedFromDate || !appliedToDate) throw new Error('Date range is required');
-        if (!appliedBranchId) throw new Error('Branch ID is required');
-
-        // Log API call parameters
-        console.log('Revenue New API Call:', {
-          token: 'Present',
-          fromDate: dayjs(appliedFromDate).format('YYYY-MM-DD'),
-          toDate: dayjs(appliedToDate).format('YYYY-MM-DD'),
-          branchId: appliedBranchId
-        });
-
-        // Make API call
-        const response = await SalesReportDashboard(
-          userDetails.accessToken,
-          dayjs(appliedFromDate).format('YYYY-MM-DD'),
-          dayjs(appliedToDate).format('YYYY-MM-DD'),
-          appliedBranchId,
-          appliedPaymentMode && appliedPaymentMode !== 'ALL' ? appliedPaymentMode : undefined
-        );
-
-        // Validate API response
-        if (!response || !response.data) {
-          throw new Error('Invalid API response format');
-        }
-
-        console.log('Revenue New API Response:', response);
-        return response.data;
-      } catch (error) {
-        console.error('Revenue API Error:', error);
-        throw error;
-      }
+      console.log('Revenue API Call:', {
+        token: userDetails?.accessToken ? 'Present' : 'Missing',
+        fromDate: appliedFromDate
+          ? dayjs(appliedFromDate).format('YYYY-MM-DD')
+          : 'Missing',
+        toDate: appliedToDate
+          ? dayjs(appliedToDate).format('YYYY-MM-DD')
+          : 'Missing',
+        branchId: appliedBranchId || 'Missing',
+      })
+      const response = await SalesReportDashboard(
+        userDetails?.accessToken,
+        dayjs(appliedFromDate).format('YYYY-MM-DD'),
+        dayjs(appliedToDate).format('YYYY-MM-DD'),
+        appliedBranchId,
+      )
+      console.log('Revenue API Response:', response)
+      return response.data
     },
-    enabled: Boolean(
-      userDetails?.accessToken &&
+    enabled:
+      userDetails.accessToken &&
       appliedBranchId &&
       appliedFromDate &&
       appliedToDate
-    ),
-    retry: 1,
-    staleTime: 30000, // Consider data stale after 30 seconds
-    onError: (error) => {
-      console.error('Query Error:', error);
-    }
+        ? true
+        : false,
   })
 
   useEffect(() => {
-    try {
-      if (!salesDashboardData) return;
+    if (salesDashboardData) {
+      let filtered = salesDashboardData
 
-      console.log('Processing sales dashboard data:', salesDashboardData);
-      let filtered = { ...salesDashboardData };
-      
-  // Apply payment mode filter only when a specific mode is selected (not 'ALL')
-  if (paymentMode && paymentMode !== 'ALL') {
-        console.log('Applying payment mode filter:', paymentMode);
-        
-        // Safely filter sales data
-        const filteredSalesData = (salesDashboardData.salesData || []).filter(
-          item => item && item.paymentMode === paymentMode
-        );
-        
-        // Safely filter return data
-        const filteredReturnData = (salesDashboardData.returnData || []).filter(
-          item => item && item.paymentMode === paymentMode
-        );
-        
-        // Safely calculate totals
+      // Apply payment mode filter if selected
+      if (paymentMode) {
+        const filteredSalesData =
+          salesDashboardData.salesData?.filter(
+            item => item.paymentMode === paymentMode,
+          ) || []
+
+        const filteredReturnData =
+          salesDashboardData.returnData?.filter(
+            item => item.paymentMode === paymentMode,
+          ) || []
+
+        // Recalculate totals from filtered data
         const totalSales = filteredSalesData.reduce(
-          (sum, item) => sum + (Number(item?.amount) || 0), 
-          0
-        );
-        
+          (sum, item) => sum + (item.amount || 0),
+          0,
+        )
         const totalReturns = filteredReturnData.reduce(
-          (sum, item) => sum + (Math.abs(Number(item?.amount)) || 0), 
-          0
-        );
-        
-        console.log('Filtered data stats:', {
-          salesCount: filteredSalesData.length,
-          returnsCount: filteredReturnData.length,
-          totalSales,
-          totalReturns
-        });
-        
+          (sum, item) => sum + (Math.abs(item.amount) || 0),
+          0,
+        )
+
         filtered = {
           ...salesDashboardData,
           salesData: filteredSalesData,
@@ -177,36 +126,34 @@ function SalesNew() {
             ...salesDashboardData.salesDashboard,
             totalSales: totalSales,
             totalReturns: totalReturns,
-          }
+          },
         }
       }
-      
+
       setFilteredData(filtered)
-    } catch (error) {
-      console.error('Error processing sales dashboard data:', error);
     }
-  }, [salesDashboardData, paymentMode]);
+  }, [salesDashboardData, paymentMode])
 
   const handleApplyFilters = () => {
     setAppliedFromDate(fromDate)
     setAppliedToDate(toDate)
     setAppliedBranchId(branchId)
-    setAppliedPaymentMode(paymentMode || 'ALL')
   }
 
   const handleResetFilters = () => {
-    const defaultFrom = dayjs().subtract(30, 'day').toDate()
+    const defaultFrom = dayjs()
+      .subtract(30, 'day')
+      .toDate()
     const defaultTo = new Date()
     const defaultBranch = dropdowns?.branches?.[0]?.id || ''
     setFromDate(defaultFrom)
     setToDate(defaultTo)
     setBranchId(defaultBranch)
-    setPaymentMode('ALL')
+    setPaymentMode('')
     setFilteredData(null)
     setAppliedFromDate(defaultFrom)
     setAppliedToDate(defaultTo)
     setAppliedBranchId(defaultBranch)
-    setAppliedPaymentMode('ALL')
   }
 
   return (
@@ -215,71 +162,48 @@ function SalesNew() {
         <Breadcrumb />
       </div>
       <div className="flex flex-wrap gap-5 p-5 ">
-         {/* Summary Cards in a row */}
-         <div className="flex gap-4">
-           <div
-             onClick={() => setActiveView('sales')}
-             style={{ cursor: 'pointer' }}
-           >
-             <SummaryCard
-               title="Total Sales"
-               value={`₹${(
-                 filteredData?.salesDashboard?.totalSales || salesDashboardData?.salesDashboard?.totalSales || 0
-               ).toLocaleString('en-IN')}`}
-               isActive={activeView === 'sales'}
-               minWidth="125px"
-             />
-           </div>
-           <div
-             onClick={() => setActiveView('refunds')}
-             style={{ cursor: 'pointer' }}
-           >
-             <SummaryCard
-               title={'Total Refunds'}
-               value={`₹${(
-                 filteredData?.salesDashboard?.totalReturns || salesDashboardData?.salesDashboard?.totalReturns || 0
-               ).toLocaleString('en-IN')}`}
-               isActive={activeView === 'refunds'}
-               minWidth="125px"
-             />
-           </div>
-         </div>
-         {/* NIKKI PAYMENT MODE FILTER 28/10/25 */}
-         <Grid item xs={12} sm={3}>
-           <FormControl
-             variant="outlined"
-             className="bg-white"
-             sx={{
-               width: '125px',
-               '& .MuiInputBase-root': {
-                 height: '56px', // Same height as Branch
-               },
-             }}
-           >
-             <InputLabel>Payment Mode</InputLabel>
-             <Select
-               label="Payment Mode"
-               name="paymentMode"
-               value={paymentMode}
-               onChange={(e) => setPaymentMode(e.target.value)}
-               className="flex h-full"
-             >
-               <MenuItem value="ALL">All</MenuItem>
-               <MenuItem value="CASH">Cash</MenuItem>
-               <MenuItem value="UPI">Upi</MenuItem>
-             </Select>
-           </FormControl>
-         </Grid>
-         {/* END NIKKI PAYMENT MODE FILTER */}
-         <DatePicker
-           label="From Date"
-           // disabled={isEdit == 'noneditable'}
-           sx={{ width: '150px' }}
-           value={fromDate ? dayjs(fromDate) : null}
-           name="fromDate"
-           format="DD/MM/YYYY"
-           onChange={newValue => setFromDate(newValue)}
-         />
+        {/* Summary Cards in a row */}
+        <div className="flex gap-4">
+          <div
+            onClick={() => setActiveView('sales')}
+            style={{ cursor: 'pointer' }}
+          >
+            <SummaryCard
+              title="Total Sales"
+              value={`₹${(
+                filteredData?.salesDashboard?.totalSales ||
+                salesDashboardData?.salesDashboard?.totalSales ||
+                0
+              ).toLocaleString('en-IN')}`}
+              isActive={activeView === 'sales'}
+              minWidth="125px"
+            />
+          </div>
+          <div
+            onClick={() => setActiveView('refunds')}
+            style={{ cursor: 'pointer' }}
+          >
+            <SummaryCard
+              title={'Total Refunds'}
+              value={`₹${(
+                filteredData?.salesDashboard?.totalReturns ||
+                salesDashboardData?.salesDashboard?.totalReturns ||
+                0
+              ).toLocaleString('en-IN')}`}
+              isActive={activeView === 'refunds'}
+              minWidth="125px"
+            />
+          </div>
+        </div>
+        <DatePicker
+          label="From Date"
+          // disabled={isEdit == 'noneditable'}
+          sx={{ width: '150px' }}
+          value={fromDate ? dayjs(fromDate) : null}
+          name="fromDate"
+          format="DD/MM/YYYY"
+          onChange={newValue => setFromDate(newValue)}
+        />
         <DatePicker
           label="To Date"
           // disabled={isEdit == 'noneditable'}
@@ -291,15 +215,10 @@ function SalesNew() {
           onChange={newValue => setToDate(newValue)}
         />
         <Grid item xs={12} sm={3}>
-          <FormControl 
-            variant="outlined" 
-            className="bg-white" 
-            sx={{ 
-              width: '125px',
-              '& .MuiInputBase-root': {
-                height: '56px', // Standard MUI form control height
-              }
-            }}
+          <FormControl
+            variant="outlined"
+            className="bg-white"
+            sx={{ width: '125px' }}
           >
             <InputLabel>Branch</InputLabel>
             <Select
@@ -307,7 +226,7 @@ function SalesNew() {
               name="branchId"
               value={branchId}
               onChange={e => setBranchId(e.target.value)}
-              className="flex h-full"
+              className="flex"
               placeholder="branch"
             >
               {dropdowns?.branches?.map((branch, idx) => (
@@ -316,89 +235,92 @@ function SalesNew() {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl> 
-         </Grid>
-        <div className="flex items-center gap-3 h-[56px]">
+          </FormControl>
+        </Grid>
+        {/* NIKKI PAYMENT MODE FILTER 28/10/25*/}
+        <Grid item xs={12} sm={3}>
+          <FormControl
+            variant="outlined"
+            className="bg-white"
+            sx={{ width: '175px' }}
+          >
+            <InputLabel>Payment Mode</InputLabel>
+            <Select
+              label="Payment Mode"
+              name="paymentMode"
+              value={paymentMode}
+              onChange={e => setPaymentMode(e.target.value)}
+              className="flex"
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="CASH">Cash</MenuItem>
+              <MenuItem value="UPI">Upi</MenuItem>
+            </Select>
+          </FormControl>
+          {/* NIKKI PAYMENT MODE FILTER 28/10/25*/}
+        </Grid>
+        <div className="flex items-end gap-3">
           <Button
             variant="contained"
             onClick={handleApplyFilters}
             disabled={!branchId}
-            sx={{
-              height: '40px',
-              textTransform: 'none',
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-              padding: '8px 22px',
-              display: 'flex',
-              alignItems: 'center',
-              minWidth: '80px',
-              '&:hover': {
-                boxShadow: '0 2px 8px rgba(0,0,0,0.12)'
-              }
-            }}
           >
             Apply
           </Button>
-          <Button
-            variant="outlined"
-            onClick={handleResetFilters}
-            sx={{
-              height: '40px',
-              textTransform: 'none',
-              borderRadius: '8px',
-              fontSize: '0.875rem',
-              padding: '8px 22px',
-              display: 'flex',
-              alignItems: 'center',
-              minWidth: '80px',
-              '&:hover': {
-                backgroundColor: 'rgba(0,0,0,0.04)'
-              }
-            }}
-          >
+          <Button variant="outlined" onClick={handleResetFilters}>
             Reset
           </Button>
         </div>
       </div>
       {isLoading && (
-        <div className="px-5 text-sm text-gray-500">Loading revenue data...</div>
+        <div className="px-5 text-sm text-gray-500">
+          Loading revenue data...
+        </div>
       )}
       {isError && (
-        <div className="px-5 text-sm text-red-500">Failed to load revenue data{error?.message ? `: ${error.message}` : ''}</div>
+        <div className="px-5 text-sm text-red-500">
+          Failed to load revenue data
+          {error?.message ? `: ${error.message}` : ''}
+        </div>
       )}
       <SalesDashboard
         data={filteredData || salesDashboardData}
         branchId={appliedBranchId}
-        reportName="Revenue_New_Report"
+        reportName="Revenue_Report"
         reportType="revenue"
-        branchName={dropdowns?.branches?.find(branch => branch.id === appliedBranchId)?.name}
+        branchName={
+          dropdowns?.branches?.find(branch => branch.id === appliedBranchId)
+            ?.name
+        }
         filters={{
-          fromDate: appliedFromDate ? dayjs(appliedFromDate).format('YYYY-MM-DD') : '',
-          toDate: appliedToDate ? dayjs(appliedToDate).format('YYYY-MM-DD') : '',
-          branchId: appliedBranchId
+          fromDate: appliedFromDate
+            ? dayjs(appliedFromDate).format('YYYY-MM-DD')
+            : '',
+          toDate: appliedToDate
+            ? dayjs(appliedToDate).format('YYYY-MM-DD')
+            : '',
+          branchId: appliedBranchId,
         }}
         activeView={activeView}
       />
     </div>
   )
 }
-// Move SummaryCard component above the main component
 const SummaryCard = ({ title, value, isActive, minWidth = '125px' }) => (
   <Card
     className="row-span-1"
     style={{
       minWidth: minWidth,
-      height: '56px',
+      maxHeight: '60px',
       backgroundColor: isActive ? '#b0e9fa' : 'white',
       // border: isActive ? '1px solid #0ea5e9' : '1px solid #e5e7eb',
     }}
   >
-    <CardContent className="p-2 flex flex-col justify-between h-full">
+    <CardContent className="p-2 flex flex-col justify-between">
       <span className="text-xs font-medium text-secondary">{title}</span>
       <span className="text-lg font-bold ">{value}</span>
     </CardContent>
   </Card>
-);
+)
 
-// Export the main component
-export default SalesNew;
+export default Sales

@@ -15,6 +15,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux'
 import { DataGrid } from '@mui/x-data-grid'
 import CustomToolbar from '@/components/CustomToolbar'
+import ReportExportToolbar from '@/components/ReportExportToolbar'
 import {
   Button,
   CircularProgress,
@@ -672,7 +673,24 @@ function OrdersPage() {
           customFilters={customFilters}
           filterData={filterData}
           getUniqueValues={getUniqueValues}
+          reportName="Orders_Report"
+          reportType="orders"
+          branchName="All_Branches"
+          filters={{}}
           disableRowSelectionOnClick
+          slots={{
+            toolbar: ReportExportToolbar,
+          }}
+          slotProps={{
+            toolbar: {
+              data: data?.data || [],
+              columns,
+              reportName: 'Orders_Report',
+              reportType: 'orders',
+              branchName: 'All_Branches',
+              filters: {},
+            },
+          }}
         />
       </div>
       <Modal uniqueKey="viewInfoModal" closeOnOutsideClick={true}>
@@ -686,6 +704,7 @@ function OrdersPage() {
         <CreateOrderForm
           createOrderMutation={createOrderMutation}
           orderForm={orderForm}
+          setOrderForm={setOrderForm}
           handleInputChange={handleInputChange}
           getVendorsByDepartment={getVendorsByDepartment}
           getSuppliesByDepartment={getSuppliesByDepartment}
@@ -745,6 +764,7 @@ function OrdersPage() {
 const CreateOrderForm = ({
   createOrderMutation,
   orderForm,
+  setOrderForm,
   handleInputChange,
   getVendorsByDepartment,
   getSuppliesByDepartment,

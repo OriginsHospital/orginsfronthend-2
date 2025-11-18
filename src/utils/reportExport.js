@@ -9,20 +9,22 @@ import dayjs from 'dayjs'
  * @param {string} str - The string to sanitize
  * @returns {string} - Sanitized string safe for file names
  */
-export const sanitizeFileName = (str) => {
-    if (!str) return ''
+export const sanitizeFileName = str => {
+  if (!str) return ''
 
-    return str
-        .toString()
-        .trim()
-        // Replace spaces with underscores
-        .replace(/\s+/g, '_')
-        // Replace special characters with underscores
-        .replace(/[^a-zA-Z0-9._-]/g, '_')
-        // Remove multiple consecutive underscores
-        .replace(/_+/g, '_')
-        // Remove leading/trailing underscores
-        .replace(/^_+|_+$/g, '')
+  return (
+    str
+      .toString()
+      .trim()
+      // Replace spaces with underscores
+      .replace(/\s+/g, '_')
+      // Replace special characters with underscores
+      .replace(/[^a-zA-Z0-9._-]/g, '_')
+      // Remove multiple consecutive underscores
+      .replace(/_+/g, '_')
+      // Remove leading/trailing underscores
+      .replace(/^_+|_+$/g, '')
+  )
 }
 
 /**
@@ -31,7 +33,7 @@ export const sanitizeFileName = (str) => {
  * @returns {string} - Formatted timestamp (YYYY-MM-DD_HHMM)
  */
 export const generateTimestamp = (date = new Date()) => {
-    return dayjs(date).format('YYYY-MM-DD_HHmm')
+  return dayjs(date).format('YYYY-MM-DD_HHmm')
 }
 
 /**
@@ -39,7 +41,10 @@ export const generateTimestamp = (date = new Date()) => {
  * @returns {string} - Unique ID string
  */
 export const generateUniqueId = () => {
-    return Math.random().toString(36).substr(2, 6).toUpperCase()
+  return Math.random()
+    .toString(36)
+    .substr(2, 6)
+    .toUpperCase()
 }
 
 /**
@@ -47,17 +52,17 @@ export const generateUniqueId = () => {
  * @param {string} format - Export format (csv, xlsx, pdf, etc.)
  * @returns {string} - File extension with dot
  */
-export const getFileExtension = (format) => {
-    const formatMap = {
-        'csv': '.csv',
-        'xlsx': '.xlsx',
-        'xls': '.xls',
-        'pdf': '.pdf',
-        'json': '.json',
-        'txt': '.txt'
-    }
+export const getFileExtension = format => {
+  const formatMap = {
+    csv: '.csv',
+    xlsx: '.xlsx',
+    xls: '.xls',
+    pdf: '.pdf',
+    json: '.json',
+    txt: '.txt',
+  }
 
-    return formatMap[format?.toLowerCase()] || '.csv'
+  return formatMap[format?.toLowerCase()] || '.csv'
 }
 
 /**
@@ -66,45 +71,45 @@ export const getFileExtension = (format) => {
  * @returns {string} - Generated file name
  */
 export const generateReportFileName = ({
-    reportName,
-    reportType,
-    format = 'csv',
-    date = new Date(),
-    branchName = null,
-    includeTimestamp = true,
-    includeUniqueId = false
+  reportName,
+  reportType,
+  format = 'csv',
+  date = new Date(),
+  branchName = null,
+  includeTimestamp = true,
+  includeUniqueId = false,
 }) => {
-    // Start with the report name or type
-    let fileName = reportName || reportType || 'Report'
+  // Start with the report name or type
+  let fileName = reportName || reportType || 'Report'
 
-    // Add branch name if provided
-    if (branchName) {
-        fileName += `_${sanitizeFileName(branchName)}`
-    }
+  // Add branch name if provided
+  if (branchName) {
+    fileName += `_${sanitizeFileName(branchName)}`
+  }
 
-    // Add date
-    const dateStr = dayjs(date).format('YYYY-MM-DD')
-    fileName += `_${dateStr}`
+  // Add date
+  const dateStr = dayjs(date).format('YYYY-MM-DD')
+  fileName += `_${dateStr}`
 
-    // Add timestamp if requested
-    if (includeTimestamp) {
-        const timeStr = dayjs(date).format('HHmm')
-        fileName += `_${timeStr}`
-    }
+  // Add timestamp if requested
+  if (includeTimestamp) {
+    const timeStr = dayjs(date).format('HHmm')
+    fileName += `_${timeStr}`
+  }
 
-    // Add unique ID if requested (for multiple downloads on same day)
-    if (includeUniqueId) {
-        fileName += `_${generateUniqueId()}`
-    }
+  // Add unique ID if requested (for multiple downloads on same day)
+  if (includeUniqueId) {
+    fileName += `_${generateUniqueId()}`
+  }
 
-    // Sanitize the entire filename
-    fileName = sanitizeFileName(fileName)
+  // Sanitize the entire filename
+  fileName = sanitizeFileName(fileName)
 
-    // Add file extension
-    const extension = getFileExtension(format)
-    fileName += extension
+  // Add file extension
+  const extension = getFileExtension(format)
+  fileName += extension
 
-    return fileName
+  return fileName
 }
 
 /**
@@ -114,27 +119,32 @@ export const generateReportFileName = ({
  * @returns {string} - CSV content
  */
 export const convertToCSV = (data, columns) => {
-    if (!data || data.length === 0) return ''
+  if (!data || data.length === 0) return ''
 
-    // Get visible columns
-    const visibleColumns = columns.filter(col => col.field && col.headerName)
+  // Get visible columns
+  const visibleColumns = columns.filter(col => col.field && col.headerName)
 
-    // Create header row
-    const headers = visibleColumns.map(col => col.headerName).join(',')
+  // Create header row
+  const headers = visibleColumns.map(col => col.headerName).join(',')
 
-    // Create data rows
-    const rows = data.map(row => {
-        return visibleColumns.map(col => {
-            const value = row[col.field]
-            // Escape commas and quotes in CSV
-            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-                return `"${value.replace(/"/g, '""')}"`
-            }
-            return value || ''
-        }).join(',')
-    })
+  // Create data rows
+  const rows = data.map(row => {
+    return visibleColumns
+      .map(col => {
+        const value = row[col.field]
+        // Escape commas and quotes in CSV
+        if (
+          typeof value === 'string' &&
+          (value.includes(',') || value.includes('"'))
+        ) {
+          return `"${value.replace(/"/g, '""')}"`
+        }
+        return value || ''
+      })
+      .join(',')
+  })
 
-    return [headers, ...rows].join('\n')
+  return [headers, ...rows].join('\n')
 }
 
 /**
@@ -144,36 +154,38 @@ export const convertToCSV = (data, columns) => {
  * @param {string} mimeType - MIME type
  */
 export const downloadFile = (content, fileName, mimeType = 'text/csv') => {
-    try {
-        // Add BOM for proper UTF-8 encoding in Excel
-        const BOM = '\uFEFF'
-        const contentWithBOM = mimeType.includes('csv') ? BOM + content : content
+  try {
+    // Add BOM for proper UTF-8 encoding in Excel
+    const BOM = '\uFEFF'
+    const contentWithBOM = mimeType.includes('csv') ? BOM + content : content
 
-        // Create blob
-        const blob = new Blob([contentWithBOM], { type: mimeType })
+    // Create blob
+    const blob = new Blob([contentWithBOM], { type: mimeType })
 
-        // Create download link
-        const url = window.URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = fileName
-        link.style.display = 'none'
+    // Create download link
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    link.style.display = 'none'
 
-        // Add to DOM, click, and remove
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+    // Add to DOM, click, and remove
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 
-        // Clean up
-        window.URL.revokeObjectURL(url)
+    // Clean up
+    window.URL.revokeObjectURL(url)
 
-        console.log(`File downloaded: ${fileName}`)
-    } catch (error) {
-        console.error('Download failed:', error)
-        // Fallback: open in new window
-        const url = window.URL.createObjectURL(new Blob([content], { type: mimeType }))
-        window.open(url, '_blank')
-    }
+    console.log(`File downloaded: ${fileName}`)
+  } catch (error) {
+    console.error('Download failed:', error)
+    // Fallback: open in new window
+    const url = window.URL.createObjectURL(
+      new Blob([content], { type: mimeType }),
+    )
+    window.open(url, '_blank')
+  }
 }
 
 /**
@@ -183,18 +195,18 @@ export const downloadFile = (content, fileName, mimeType = 'text/csv') => {
  * @param {Object} options - Export options
  */
 export const exportAsCSV = (data, columns, options = {}) => {
-    const fileName = generateReportFileName({
-        reportName: options.reportName || 'Report',
-        reportType: options.reportType || 'data',
-        format: 'csv',
-        date: new Date(),
-        branchName: options.branchName,
-        includeTimestamp: true,
-        includeUniqueId: false
-    })
+  const fileName = generateReportFileName({
+    reportName: options.reportName || 'Report',
+    reportType: options.reportType || 'data',
+    format: 'csv',
+    date: new Date(),
+    branchName: options.branchName,
+    includeTimestamp: true,
+    includeUniqueId: false,
+  })
 
-    const csvContent = convertToCSV(data, columns)
-    downloadFile(csvContent, fileName, 'text/csv;charset=utf-8;')
+  const csvContent = convertToCSV(data, columns)
+  downloadFile(csvContent, fileName, 'text/csv;charset=utf-8;')
 }
 
 /**
@@ -204,18 +216,22 @@ export const exportAsCSV = (data, columns, options = {}) => {
  * @param {Object} options - Export options
  */
 export const exportAsExcel = (data, columns, options = {}) => {
-    const fileName = generateReportFileName({
-        reportName: options.reportName || 'Report',
-        reportType: options.reportType || 'data',
-        format: 'xlsx',
-        date: new Date(),
-        branchName: options.branchName,
-        includeTimestamp: true,
-        includeUniqueId: false
-    })
+  const fileName = generateReportFileName({
+    reportName: options.reportName || 'Report',
+    reportType: options.reportType || 'data',
+    format: 'xlsx',
+    date: new Date(),
+    branchName: options.branchName,
+    includeTimestamp: true,
+    includeUniqueId: false,
+  })
 
-    const csvContent = convertToCSV(data, columns)
-    downloadFile(csvContent, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  const csvContent = convertToCSV(data, columns)
+  downloadFile(
+    csvContent,
+    fileName,
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
 }
 
 /**
@@ -225,19 +241,19 @@ export const exportAsExcel = (data, columns, options = {}) => {
  * @param {Object} options - Export options
  */
 export const exportAsPDF = (data, columns, options = {}) => {
-    const fileName = generateReportFileName({
-        reportName: options.reportName || 'Report',
-        reportType: options.reportType || 'data',
-        format: 'pdf',
-        date: new Date(),
-        branchName: options.branchName,
-        includeTimestamp: true,
-        includeUniqueId: false
-    })
+  const fileName = generateReportFileName({
+    reportName: options.reportName || 'Report',
+    reportType: options.reportType || 'data',
+    format: 'pdf',
+    date: new Date(),
+    branchName: options.branchName,
+    includeTimestamp: true,
+    includeUniqueId: false,
+  })
 
-    // Convert to text format for PDF
-    const textContent = convertToText(data, columns)
-    downloadFile(textContent, fileName, 'application/pdf')
+  // Convert to text format for PDF
+  const textContent = convertToText(data, columns)
+  downloadFile(textContent, fileName, 'application/pdf')
 }
 
 /**
@@ -247,21 +263,23 @@ export const exportAsPDF = (data, columns, options = {}) => {
  * @returns {string} - Text content
  */
 export const convertToText = (data, columns) => {
-    if (!data || data.length === 0) return ''
+  if (!data || data.length === 0) return ''
 
-    const visibleColumns = columns.filter(col => col.field && col.headerName)
+  const visibleColumns = columns.filter(col => col.field && col.headerName)
 
-    // Create header
-    const headers = visibleColumns.map(col => col.headerName).join('\t')
+  // Create header
+  const headers = visibleColumns.map(col => col.headerName).join('\t')
 
-    // Create data rows
-    const rows = data.map(row => {
-        return visibleColumns.map(col => {
-            return row[col.field] || ''
-        }).join('\t')
-    })
+  // Create data rows
+  const rows = data.map(row => {
+    return visibleColumns
+      .map(col => {
+        return row[col.field] || ''
+      })
+      .join('\t')
+  })
 
-    return [headers, ...rows].join('\n')
+  return [headers, ...rows].join('\n')
 }
 
 /**
@@ -272,32 +290,32 @@ export const convertToText = (data, columns) => {
  * @param {Object} options - Export options
  */
 export const exportReport = (data, columns, format, options = {}) => {
-    switch (format.toLowerCase()) {
-        case 'csv':
-            exportAsCSV(data, columns, options)
-            break
-        case 'xlsx':
-        case 'excel':
-            exportAsExcel(data, columns, options)
-            break
-        case 'pdf':
-            exportAsPDF(data, columns, options)
-            break
-        default:
-            exportAsCSV(data, columns, options)
-    }
+  switch (format.toLowerCase()) {
+    case 'csv':
+      exportAsCSV(data, columns, options)
+      break
+    case 'xlsx':
+    case 'excel':
+      exportAsExcel(data, columns, options)
+      break
+    case 'pdf':
+      exportAsPDF(data, columns, options)
+      break
+    default:
+      exportAsCSV(data, columns, options)
+  }
 }
 
 export default {
-    sanitizeFileName,
-    generateTimestamp,
-    generateUniqueId,
-    getFileExtension,
-    generateReportFileName,
-    convertToCSV,
-    downloadFile,
-    exportAsCSV,
-    exportAsExcel,
-    exportAsPDF,
-    exportReport
+  sanitizeFileName,
+  generateTimestamp,
+  generateUniqueId,
+  getFileExtension,
+  generateReportFileName,
+  convertToCSV,
+  downloadFile,
+  exportAsCSV,
+  exportAsExcel,
+  exportAsPDF,
+  exportReport,
 }

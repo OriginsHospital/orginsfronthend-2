@@ -18,10 +18,10 @@ import { DatePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
-import { 
-  generateReportFileName, 
-  detectReportContext, 
-  generateEnhancedReportFileName 
+import {
+  generateReportFileName,
+  detectReportContext,
+  generateEnhancedReportFileName,
 } from '@/utils/fileNamingUtils'
 import { createExportHandler } from '@/utils/exportHandler'
 
@@ -114,13 +114,13 @@ const EnhancedCustomToolbar = ({
   const [activeFilterCount, setActiveFilterCount] = useState(0)
   const router = useRouter()
   const dropdowns = useSelector(store => store.dropdowns)
-  
+
   // Create export handler
   const exportHandler = createExportHandler({
     reportName,
     reportType,
     branchName,
-    filters: { ...filters, ...filterValues }
+    filters: { ...filters, ...filterValues },
   })
 
   useEffect(() => {
@@ -186,12 +186,13 @@ const EnhancedCustomToolbar = ({
     // Detect report context from router path
     const reportContext = detectReportContext(router.pathname, {
       branchId: branchName,
-      branchName: branchName
+      branchName: branchName,
     })
 
     // Get branch name from dropdowns if not provided
-    const currentBranchName = branchName || 
-      (dropdowns?.branches?.find(branch => branch.id === branchName)?.name) ||
+    const currentBranchName =
+      branchName ||
+      dropdowns?.branches?.find(branch => branch.id === branchName)?.name ||
       'All_Branches'
 
     // Use enhanced file naming with filters
@@ -203,16 +204,18 @@ const EnhancedCustomToolbar = ({
       branchName: currentBranchName,
       filters: { ...filters, ...filterValues },
       includeTimestamp: true,
-      includeUniqueId: false // Set to true if you want unique IDs for multiple downloads
+      includeUniqueId: false, // Set to true if you want unique IDs for multiple downloads
     })
   }
 
   // Custom export handler with dynamic naming
-  const handleExport = (format) => {
+  const handleExport = format => {
     const fileName = generateDynamicFileName(format)
-    
+
     // Override the default export behavior
-    const exportButton = document.querySelector('[data-testid="GridToolbarExportButton"]')
+    const exportButton = document.querySelector(
+      '[data-testid="GridToolbarExportButton"]',
+    )
     if (exportButton) {
       // Store the filename for the export
       exportButton.setAttribute('data-filename', fileName)
@@ -402,7 +405,7 @@ const EnhancedCustomToolbar = ({
   const CustomExportButton = () => {
     const [exportMenuAnchor, setExportMenuAnchor] = useState(null)
 
-    const handleExportClick = (event) => {
+    const handleExportClick = event => {
       setExportMenuAnchor(event.currentTarget)
     }
 
@@ -410,13 +413,13 @@ const EnhancedCustomToolbar = ({
       setExportMenuAnchor(null)
     }
 
-    const handleExportFormat = (format) => {
+    const handleExportFormat = format => {
       try {
         // Update export handler with current data
         exportHandler.updateOptions({
-          filters: { ...filters, ...filterValues }
+          filters: { ...filters, ...filterValues },
         })
-        
+
         // Export based on format
         switch (format) {
           case 'csv':
@@ -431,23 +434,19 @@ const EnhancedCustomToolbar = ({
           default:
             exportHandler.exportCSV(data, columns, format)
         }
-        
+
         console.log(`Exporting ${format} with ${data.length} rows`)
       } catch (error) {
         console.error('Export failed:', error)
         alert('Export failed. Please try again.')
       }
-      
+
       handleExportClose()
     }
 
     return (
       <>
-        <Button
-          onClick={handleExportClick}
-          size="small"
-          variant="outlined"
-        >
+        <Button onClick={handleExportClick} size="small" variant="outlined">
           Export
         </Button>
         <Menu
