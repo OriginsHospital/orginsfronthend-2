@@ -197,7 +197,7 @@ const Expenses = () => {
     // Added Branch column - copied from Orders report structure
     {
       field: 'branch',
-      headerName: 'Branch',
+      headerName: 'main',
       width: 120,
       flex: 0.6,
       renderCell: params => {
