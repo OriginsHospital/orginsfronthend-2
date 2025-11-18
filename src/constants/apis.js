@@ -1905,7 +1905,29 @@ export const SalesReportDashboard = async (
     redirect: 'follow',
     credentials: 'include',
   })
-  return response.json()
+
+  // Check HTTP status code for 403 Forbidden
+  if (response.status === 403) {
+    return {
+      status: 403,
+      message:
+        'Access Denied: You do not have permission to view revenue reports',
+    }
+  }
+
+  const jsonResponse = await response.json()
+
+  // Also check if the JSON response has status 403
+  if (jsonResponse.status === 403) {
+    return {
+      status: 403,
+      message:
+        jsonResponse.message ||
+        'Access Denied: You do not have permission to view revenue reports',
+    }
+  }
+
+  return jsonResponse
 }
 export const ReturnItems = async (token, payload) => {
   const myHeaders = new Headers()

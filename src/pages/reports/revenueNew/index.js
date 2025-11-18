@@ -19,8 +19,17 @@ import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
+import { useRouter } from 'next/router'
+import { hasRevenueAccess } from '@/utils/revenueAccess'
+import { Redirect } from '@/components/Redirect'
 function SalesNew() {
   const userDetails = useSelector(store => store.user)
+  const router = useRouter()
+
+  // Check if user has access to revenue reports
+  if (!hasRevenueAccess(userDetails?.email)) {
+    return <Redirect redirectURL="/home" />
+  }
   const dropdowns = useSelector(store => store.dropdowns)
   // Initialize with current date for fromDate and 30 days ago for toDate
   const [fromDate, setFromDate] = useState(
@@ -122,6 +131,13 @@ function SalesNew() {
             ? appliedPaymentMode
             : undefined,
         )
+
+        // Handle 403 Forbidden response from backend
+        if (response.status === 403) {
+          throw new Error(
+            'Access Denied: You do not have permission to view revenue reports',
+          )
+        }
 
         // Validate API response
         if (!response || !response.data) {

@@ -9,6 +9,7 @@ import { GoClockFill } from 'react-icons/go'
 import { useSelector } from 'react-redux'
 import { IoAlertSharp } from 'react-icons/io5'
 import { Announcement } from '@mui/icons-material'
+import { hasRevenueAccess } from '@/utils/revenueAccess'
 const subNav = [
   {
     path: '/reports/revenue',
@@ -109,9 +110,23 @@ const subNav = [
 ]
 function Reports() {
   const user = useSelector(store => store.user)
+
+  // Filter menu items based on revenue access
+  const filteredSubNav = subNav.filter(eachNav => {
+    // Check if this is a revenue report that requires special access
+    if (
+      eachNav.path === '/reports/revenue' ||
+      eachNav.path === '/reports/revenueNew'
+    ) {
+      return hasRevenueAccess(user?.email)
+    }
+    // All other reports are visible to all users (subject to module permissions)
+    return true
+  })
+
   return (
     <div className=" w-full grid gap-4 grid-cols-2 lg:grid-cols-4 m-4">
-      {subNav?.map((eachNav, i) => {
+      {filteredSubNav?.map((eachNav, i) => {
         const CardComponent = eachNav.relatedModule
           ? withPermission(DashboardCard, false, eachNav.relatedModule, [
               ACCESS_TYPES.READ,
