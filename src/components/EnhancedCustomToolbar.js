@@ -25,7 +25,7 @@ import {
 } from '@/utils/fileNamingUtils'
 import { createExportHandler } from '@/utils/exportHandler'
 
-const getDefaultPrefixOptions = type => {
+const getDefaultPrefixOptions = (type) => {
   switch (type) {
     case 'text':
       return [
@@ -113,7 +113,7 @@ const EnhancedCustomToolbar = ({
   const [filterValues, setFilterValues] = useState({})
   const [activeFilterCount, setActiveFilterCount] = useState(0)
   const router = useRouter()
-  const dropdowns = useSelector(store => store.dropdowns)
+  const dropdowns = useSelector((store) => store.dropdowns)
 
   // Create export handler
   const exportHandler = createExportHandler({
@@ -124,7 +124,7 @@ const EnhancedCustomToolbar = ({
   })
 
   useEffect(() => {
-    const count = Object.values(filterValues).filter(value => {
+    const count = Object.values(filterValues).filter((value) => {
       if (value === null || value === '') return false
       if (typeof value === 'object' && 'start' in value && 'end' in value) {
         return !!(value.start || value.end)
@@ -134,7 +134,7 @@ const EnhancedCustomToolbar = ({
     setActiveFilterCount(count)
   }, [filterValues])
 
-  const handleFilterClick = event => {
+  const handleFilterClick = (event) => {
     // console.log('handleFilterClick', event.currentTarget)
     setAnchorEl(event.currentTarget)
   }
@@ -144,7 +144,7 @@ const EnhancedCustomToolbar = ({
   }
 
   const handleFilterChange = (field, value) => {
-    setFilterValues(prev => {
+    setFilterValues((prev) => {
       const currentValue = prev[field]
       const newValue = {
         prefix: value.prefix,
@@ -170,7 +170,7 @@ const EnhancedCustomToolbar = ({
 
   const handleClearFilters = () => {
     const clearedFilters = {}
-    customFilters.forEach(filter => {
+    customFilters.forEach((filter) => {
       clearedFilters[filter.field] = null
       // clearedFilters[filter.field] = filter.type === 'select'
       //   ? { prefix: getDefaultPrefixOptions('select')[0].value, value: [] }
@@ -192,7 +192,7 @@ const EnhancedCustomToolbar = ({
     // Get branch name from dropdowns if not provided
     const currentBranchName =
       branchName ||
-      dropdowns?.branches?.find(branch => branch.id === branchName)?.name ||
+      dropdowns?.branches?.find((branch) => branch.id === branchName)?.name ||
       'All_Branches'
 
     // Use enhanced file naming with filters
@@ -209,7 +209,7 @@ const EnhancedCustomToolbar = ({
   }
 
   // Custom export handler with dynamic naming
-  const handleExport = format => {
+  const handleExport = (format) => {
     const fileName = generateDynamicFileName(format)
 
     // Override the default export behavior
@@ -222,7 +222,7 @@ const EnhancedCustomToolbar = ({
     }
   }
 
-  const renderFilterInput = filter => {
+  const renderFilterInput = (filter) => {
     switch (filter.type) {
       case 'text':
       case 'number':
@@ -236,14 +236,14 @@ const EnhancedCustomToolbar = ({
                   getDefaultPrefixOptions(filter.type)[0].value
                 }
                 label="Condition"
-                onChange={e =>
+                onChange={(e) =>
                   handleFilterChange(filter.field, {
                     prefix: e.target.value,
                     value: filterValues[filter.field]?.value || '',
                   })
                 }
               >
-                {getDefaultPrefixOptions(filter.type).map(option => (
+                {getDefaultPrefixOptions(filter.type).map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -257,7 +257,7 @@ const EnhancedCustomToolbar = ({
               type={filter.type}
               label={filter.label}
               value={filterValues[filter.field]?.value || ''}
-              onChange={e => {
+              onChange={(e) => {
                 const newValue = e.target.value
                 handleFilterChange(filter.field, {
                   prefix:
@@ -266,7 +266,7 @@ const EnhancedCustomToolbar = ({
                   value: newValue,
                 })
               }}
-              onKeyDown={e => {
+              onKeyDown={(e) => {
                 // Prevent the menu from closing on key press
                 e.stopPropagation()
               }}
@@ -286,7 +286,7 @@ const EnhancedCustomToolbar = ({
                   getDefaultPrefixOptions('select')[0].value
                 }
                 label="Condition"
-                onChange={e => {
+                onChange={(e) => {
                   handleFilterChange(filter.field, {
                     prefix: e.target.value,
                     value: filterValues[filter.field]?.value || [],
@@ -300,7 +300,7 @@ const EnhancedCustomToolbar = ({
                   },
                 }}
               >
-                {getDefaultPrefixOptions('select').map(option => (
+                {getDefaultPrefixOptions('select').map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -317,7 +317,7 @@ const EnhancedCustomToolbar = ({
                     : []
                 }
                 label={filter.label}
-                onChange={e => {
+                onChange={(e) => {
                   handleFilterChange(filter.field, {
                     prefix:
                       filterValues[filter.field]?.prefix ||
@@ -327,15 +327,15 @@ const EnhancedCustomToolbar = ({
                       : [e.target.value],
                   })
                 }}
-                renderValue={selected => (
+                renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {selected.map(value => {
+                    {selected.map((value) => {
                       // Get the display label for the value
                       const options =
                         filter.options ||
                         (getUniqueValues ? getUniqueValues(filter.field) : [])
                       const option = options.find(
-                        opt => opt.value === value || opt === value,
+                        (opt) => opt.value === value || opt === value,
                       )
                       const displayLabel = option?.label || option || value
                       return <Chip key={value} label={displayLabel} />
@@ -353,7 +353,7 @@ const EnhancedCustomToolbar = ({
                 {(
                   filter.options ||
                   (getUniqueValues ? getUniqueValues(filter.field) : [])
-                ).map(option => (
+                ).map((option) => (
                   <MenuItem
                     key={option.value || option}
                     value={option.value || option}
@@ -376,7 +376,7 @@ const EnhancedCustomToolbar = ({
             <DatePicker
               label="Start Date"
               value={dateRange.start ? dayjs(dateRange.start) : null}
-              onChange={value =>
+              onChange={(value) =>
                 handleFilterChange(filter.field, {
                   ...dateRange,
                   start: value ? value.format('YYYY-MM-DD') : null,
@@ -386,7 +386,7 @@ const EnhancedCustomToolbar = ({
             <DatePicker
               label="End Date"
               value={dateRange.end ? dayjs(dateRange.end) : null}
-              onChange={value =>
+              onChange={(value) =>
                 handleFilterChange(filter.field, {
                   ...dateRange,
                   end: value ? value.format('YYYY-MM-DD') : null,
@@ -405,7 +405,7 @@ const EnhancedCustomToolbar = ({
   const CustomExportButton = () => {
     const [exportMenuAnchor, setExportMenuAnchor] = useState(null)
 
-    const handleExportClick = event => {
+    const handleExportClick = (event) => {
       setExportMenuAnchor(event.currentTarget)
     }
 
@@ -413,7 +413,7 @@ const EnhancedCustomToolbar = ({
       setExportMenuAnchor(null)
     }
 
-    const handleExportFormat = format => {
+    const handleExportFormat = (format) => {
       try {
         // Update export handler with current data
         exportHandler.updateOptions({
@@ -492,14 +492,14 @@ const EnhancedCustomToolbar = ({
           vertical: 'top',
           horizontal: 'right',
         }}
-        onKeyDown={e => {
+        onKeyDown={(e) => {
           // Prevent menu from closing on key press
           e.stopPropagation()
         }}
       >
         <Box sx={{ p: 2, maxWidth: 500, minWidth: 300 }}>
           <div className="flex flex-col gap-2 p-2">
-            {customFilters.map(filter => (
+            {customFilters.map((filter) => (
               <div key={filter.field} className="mb-2">
                 {renderFilterInput(filter)}
               </div>

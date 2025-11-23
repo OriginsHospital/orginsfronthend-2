@@ -30,7 +30,7 @@ export const getBranchName = (row, branches = []) => {
 
   if (row.branchId) {
     // Try to find branch name from dropdowns
-    const branch = branches.find(b => b.id === row.branchId)
+    const branch = branches.find((b) => b.id === row.branchId)
     if (branch?.name) {
       return branch.name
     }
@@ -70,7 +70,7 @@ export const getBranchNameWithDebug = (row, branches = []) => {
  * @returns {Array} - Array with mapped branch names
  */
 export const mapBranchData = (rows, branches = []) => {
-  return rows.map(row => ({
+  return rows.map((row) => ({
     ...row,
     branchName: getBranchName(row, branches),
   }))

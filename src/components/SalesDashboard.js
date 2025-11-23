@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Card, CardContent } from '@mui/material'
 import dayjs from 'dayjs'
 import SalesChart from './charts/SalesChart'
-import RevenueLegendTable from './RevenueLegendTable'
 import FilteredDataGrid from './FilteredDataGrid'
 
 const SERVICE_COLORS = {
@@ -52,17 +51,17 @@ const SalesDashboard = ({
   const debounceRef = useRef(null)
   const prevRowsSignatureRef = useRef('')
 
-  const computeRowsSignature = useCallback(rows => {
+  const computeRowsSignature = useCallback((rows) => {
     if (!rows || rows.length === 0) return '__EMPTY__'
     return rows
       .map(
-        row => `${row.orderId}-${row.productType}-${Number(row.amount) || 0}`,
+        (row) => `${row.orderId}-${row.productType}-${Number(row.amount) || 0}`,
       )
       .join('|')
   }, [])
 
   // Normalize incoming rows to ensure consistent fields for display and export
-  const normalizeRow = row => {
+  const normalizeRow = (row) => {
     if (!row) return row
     const lastNameFromDb = row.last_name ?? row.lastName ?? ''
     const firstNameFromDb = row.first_name ?? row.firstName ?? ''
@@ -72,9 +71,7 @@ const SalesDashboard = ({
 
     // If DB fields are missing, try to derive from existing patientName (fallback)
     if ((!lastName || !firstName) && row.patientName) {
-      const parts = String(row.patientName)
-        .trim()
-        .split(/\s+/)
+      const parts = String(row.patientName).trim().split(/\s+/)
       if (parts.length > 0) {
         firstName = parts[0] // First part is the first name
         if (parts.length > 1) {
@@ -102,17 +99,19 @@ const SalesDashboard = ({
   const dataNormalizedReturns = (data?.returnData || []).map(normalizeRow)
 
   const rowsForActiveBranch = useMemo(() => {
-    return (dataNormalizedSales || []).filter(row => row.branchId === branchId)
+    return (dataNormalizedSales || []).filter(
+      (row) => row.branchId === branchId,
+    )
   }, [dataNormalizedSales, branchId])
 
   const rowsForActiveBranchReturns = useMemo(() => {
     return (dataNormalizedReturns || []).filter(
-      row => row.branchId === branchId,
+      (row) => row.branchId === branchId,
     )
   }, [dataNormalizedReturns, branchId])
 
   const scheduleVisibleRowsUpdate = useCallback(
-    rows => {
+    (rows) => {
       const signature = computeRowsSignature(rows)
       if (signature === prevRowsSignatureRef.current) {
         return
@@ -153,7 +152,7 @@ const SalesDashboard = ({
       flex: 1,
       align: 'left',
       headerAlign: 'left',
-      renderCell: params => (
+      renderCell: (params) => (
         <div>{dayjs(params?.row?.date).format('DD-MM-YYYY')}</div>
       ),
       filterField: 'date',
@@ -166,18 +165,18 @@ const SalesDashboard = ({
       align: 'left',
       headerAlign: 'left',
       filterField: 'patientName',
-      renderCell: params => <div>{params?.row?.patientName || ''}</div>,
+      renderCell: (params) => <div>{params?.row?.patientName || ''}</div>,
       // Support searching by both first and last name
-      valueGetter: params => params?.row?.patientName || '',
+      valueGetter: (params) => params?.row?.patientName || '',
       filterOperators: [
         {
           label: 'contains',
           value: 'contains',
-          getApplyFilterFn: filterItem => {
+          getApplyFilterFn: (filterItem) => {
             if (!filterItem.value) {
               return null
             }
-            return params => {
+            return (params) => {
               const searchValue = filterItem.value.toLowerCase()
               const patientName = (params.value || '').toLowerCase()
               return patientName.includes(searchValue)
@@ -192,7 +191,7 @@ const SalesDashboard = ({
       flex: 1.2,
       align: 'left',
       headerAlign: 'left',
-      renderCell: params => (
+      renderCell: (params) => (
         <>
           {params?.row?.productType?.charAt(0).toUpperCase() +
             params?.row?.productType?.slice(1).toLowerCase()}
@@ -206,7 +205,7 @@ const SalesDashboard = ({
       flex: 1.2,
       align: 'left',
       headerAlign: 'left',
-      renderCell: params => {
+      renderCell: (params) => {
         if (params?.row?.paymentMode) {
           return (
             <>
@@ -226,12 +225,12 @@ const SalesDashboard = ({
       align: 'left',
       headerAlign: 'left',
       // Round the displayed value
-      renderCell: params => {
+      renderCell: (params) => {
         const amount = params?.row?.amount
         return <div>{amount ? Math.round(amount) : 0}</div>
       },
       // Format value for exports and sorting
-      valueFormatter: params => {
+      valueFormatter: (params) => {
         const amount = params?.value
         return amount ? Math.round(amount) : 0
       },
@@ -293,10 +292,10 @@ const SalesDashboard = ({
   // }
 
   // Get unique values for dropdowns
-  const getUniqueValues = field => {
+  const getUniqueValues = (field) => {
     // Use normalized sales data when available so fields like lastName/firstName work
     const source = dataNormalizedSales || data?.salesData || []
-    const values = new Set(source.map(row => row[field]) || [])
+    const values = new Set(source.map((row) => row[field]) || [])
     return Array.from(values).filter(Boolean)
   }
 
@@ -310,7 +309,7 @@ const SalesDashboard = ({
       field: 'productType',
       label: 'Service Type',
       type: 'select',
-      options: getUniqueValues('productType').map(value => ({
+      options: getUniqueValues('productType').map((value) => ({
         value,
         label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
       })),
@@ -319,7 +318,7 @@ const SalesDashboard = ({
       field: 'paymentMode',
       label: 'Payment Mode',
       type: 'select',
-      options: getUniqueValues('paymentMode').map(value => ({
+      options: getUniqueValues('paymentMode').map((value) => ({
         value,
         label: value.charAt(0).toUpperCase() + value.slice(1).toLowerCase(),
       })),
@@ -331,13 +330,13 @@ const SalesDashboard = ({
     },
   ]
 
-  const handleApplyFilters = newFilters => {
+  const handleApplyFilters = (newFilters) => {
     setFilters(newFilters)
   }
 
   const filterData = (data, filters) => {
     if (!data) return []
-    return data.filter(row => {
+    return data.filter((row) => {
       return Object.entries(filters).every(([field, filter]) => {
         if (!filter || !filter.value) return true
 
@@ -420,11 +419,9 @@ const SalesDashboard = ({
       return acc
     }, {})
 
-    // Sort labels alphabetically (case-insensitive, strict A→Z order)
-    const labels = Object.keys(totalsByService).sort((a, b) =>
-      a.localeCompare(b, undefined, { sensitivity: 'base', numeric: true }),
-    )
-    const amounts = labels.map(label => totalsByService[label])
+    const labels = Object.keys(totalsByService)
+    const amounts = labels.map((label) => totalsByService[label])
+
     const assignedColors = labels.map((label, index) => {
       if (SERVICE_COLORS[label]) {
         return SERVICE_COLORS[label]
@@ -438,21 +435,7 @@ const SalesDashboard = ({
 
   const hasChartData =
     pieChartDataset.labels.length > 0 &&
-    pieChartDataset.amounts.some(amount => amount > 0)
-
-  // Prepare legend table items for revenueNew
-  const legendTableItems = pieChartDataset.labels.map((label, idx) => ({
-    label,
-    amount: pieChartDataset.amounts[idx],
-    color: pieChartDataset.colors[idx],
-    percentage: hasChartData
-      ? `${(
-          (pieChartDataset.amounts[idx] /
-            (pieChartDataset.amounts.reduce((a, b) => a + b, 0) || 1)) *
-          100
-        ).toFixed(1)}%`
-      : '0%',
-  }))
+    pieChartDataset.amounts.some((amount) => amount > 0)
 
   return (
     <div className="grid grid-cols-12 gap-5">
@@ -491,21 +474,14 @@ const SalesDashboard = ({
           />
         </div>
       )}
-      {/* Chart and Table Section */}
+      {/* Chart Section with null check */}
       <div className="col-span-12 lg:col-span-4">
         {activeView === 'sales' ? (
-          <div className="flex flex-col gap-4 h-full">
-            <div className="flex-1 flex items-center justify-center">
-              <SalesChart
-                dataset={pieChartDataset}
-                isLoading={isChartLoading}
-                hasData={hasChartData}
-              />
-            </div>
-            <div className="flex-1">
-              <RevenueLegendTable items={legendTableItems} />
-            </div>
-          </div>
+          <SalesChart
+            dataset={pieChartDataset}
+            isLoading={isChartLoading}
+            hasData={hasChartData}
+          />
         ) : (
           <div className="text-center p-4 text-gray-500">
             No chart available for the selected view
@@ -537,7 +513,7 @@ const SalesTable = ({
     <FilteredDataGrid
       key={`SalesTable-${branchId}-${data?.length}`}
       rows={data || []}
-      getRowId={row => row.orderId + row.productType}
+      getRowId={(row) => row.orderId + row.productType}
       columns={columns}
       className="h-[60vh]"
       customFilters={customFilters}

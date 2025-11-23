@@ -17,7 +17,7 @@ const ReportExportToolbar = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState(null)
 
-  const handleExportClick = event => {
+  const handleExportClick = (event) => {
     setAnchorEl(event.currentTarget)
   }
 
@@ -25,7 +25,7 @@ const ReportExportToolbar = ({
     setAnchorEl(null)
   }
 
-  const handleExportFormat = format => {
+  const handleExportFormat = (format) => {
     try {
       // Prepare export options
       const exportOptions = {

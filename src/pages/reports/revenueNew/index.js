@@ -20,22 +20,17 @@ import dayjs from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
+import { toast } from 'react-toastify'
+import { toastconfig } from '@/utils/toastconfig'
 import { hasRevenueAccess } from '@/utils/revenueAccess'
-import { Redirect } from '@/components/Redirect'
-function SalesNew() {
-  const userDetails = useSelector(store => store.user)
-  const router = useRouter()
 
-  // Check if user has access to revenue reports
-  if (!hasRevenueAccess(userDetails?.email)) {
-    return <Redirect redirectURL="/home" />
-  }
-  const dropdowns = useSelector(store => store.dropdowns)
+function SalesNew() {
+  const router = useRouter()
+  const userDetails = useSelector((store) => store.user)
+  const dropdowns = useSelector((store) => store.dropdowns)
   // Initialize with current date for fromDate and 30 days ago for toDate
   const [fromDate, setFromDate] = useState(
-    dayjs()
-      .subtract(30, 'days')
-      .toDate(),
+    dayjs().subtract(30, 'days').toDate(),
   )
   const [toDate, setToDate] = useState(dayjs().toDate())
   const [branchId, setBranchId] = useState('')
@@ -45,13 +40,23 @@ function SalesNew() {
 
   // Applied filters (used to trigger API)
   const [appliedFromDate, setAppliedFromDate] = useState(
-    dayjs()
-      .subtract(30, 'days')
-      .toDate(),
+    dayjs().subtract(30, 'days').toDate(),
   )
   const [appliedToDate, setAppliedToDate] = useState(dayjs().toDate())
   const [appliedBranchId, setAppliedBranchId] = useState('')
   const [appliedPaymentMode, setAppliedPaymentMode] = useState('ALL')
+
+  // Access control: Check if user has revenue access
+  useEffect(() => {
+    if (userDetails?.email && !hasRevenueAccess(userDetails.email)) {
+      toast.error(
+        'You do not have permission to access Revenue Reports.',
+        toastconfig,
+      )
+      router.replace('/home')
+      return
+    }
+  }, [userDetails?.email, router])
 
   // Set initial branch and handle branch data loading
   useEffect(() => {
@@ -132,13 +137,6 @@ function SalesNew() {
             : undefined,
         )
 
-        // Handle 403 Forbidden response from backend
-        if (response.status === 403) {
-          throw new Error(
-            'Access Denied: You do not have permission to view revenue reports',
-          )
-        }
-
         // Validate API response
         if (!response || !response.data) {
           throw new Error('Invalid API response format')
@@ -148,6 +146,17 @@ function SalesNew() {
         return response.data
       } catch (error) {
         console.error('Revenue API Error:', error)
+        // Handle 403 Forbidden (unauthorized access)
+        if (
+          error?.message?.includes('Access restricted') ||
+          error?.response?.status === 403
+        ) {
+          toast.error(
+            'You do not have permission to access Revenue Reports.',
+            toastconfig,
+          )
+          router.replace('/home')
+        }
         throw error
       }
     },
@@ -159,7 +168,7 @@ function SalesNew() {
     ),
     retry: 1,
     staleTime: 30000, // Consider data stale after 30 seconds
-    onError: error => {
+    onError: (error) => {
       console.error('Query Error:', error)
     },
   })
@@ -177,12 +186,12 @@ function SalesNew() {
 
         // Safely filter sales data
         const filteredSalesData = (salesDashboardData.salesData || []).filter(
-          item => item && item.paymentMode === paymentMode,
+          (item) => item && item.paymentMode === paymentMode,
         )
 
         // Safely filter return data
         const filteredReturnData = (salesDashboardData.returnData || []).filter(
-          item => item && item.paymentMode === paymentMode,
+          (item) => item && item.paymentMode === paymentMode,
         )
 
         // Safely calculate totals
@@ -229,9 +238,7 @@ function SalesNew() {
   }
 
   const handleResetFilters = () => {
-    const defaultFrom = dayjs()
-      .subtract(30, 'day')
-      .toDate()
+    const defaultFrom = dayjs().subtract(30, 'day').toDate()
     const defaultTo = new Date()
     const defaultBranch = dropdowns?.branches?.[0]?.id || ''
     setFromDate(defaultFrom)
@@ -243,6 +250,11 @@ function SalesNew() {
     setAppliedToDate(defaultTo)
     setAppliedBranchId(defaultBranch)
     setAppliedPaymentMode('ALL')
+  }
+
+  // Don't render if user doesn't have access
+  if (userDetails?.email && !hasRevenueAccess(userDetails.email)) {
+    return null
   }
 
   return (
@@ -301,7 +313,7 @@ function SalesNew() {
               label="Payment Mode"
               name="paymentMode"
               value={paymentMode}
-              onChange={e => setPaymentMode(e.target.value)}
+              onChange={(e) => setPaymentMode(e.target.value)}
               className="flex h-full"
             >
               <MenuItem value="ALL">All</MenuItem>
@@ -318,7 +330,7 @@ function SalesNew() {
           value={fromDate ? dayjs(fromDate) : null}
           name="fromDate"
           format="DD/MM/YYYY"
-          onChange={newValue => setFromDate(newValue)}
+          onChange={(newValue) => setFromDate(newValue)}
         />
         <DatePicker
           label="To Date"
@@ -328,7 +340,7 @@ function SalesNew() {
           sx={{ width: '150px' }}
           value={toDate ? dayjs(toDate) : null}
           name="fromDate"
-          onChange={newValue => setToDate(newValue)}
+          onChange={(newValue) => setToDate(newValue)}
         />
         <Grid item xs={12} sm={3}>
           <FormControl
@@ -346,7 +358,7 @@ function SalesNew() {
               label="Branch"
               name="branchId"
               value={branchId}
-              onChange={e => setBranchId(e.target.value)}
+              onChange={(e) => setBranchId(e.target.value)}
               className="flex h-full"
               placeholder="branch"
             >
@@ -417,7 +429,7 @@ function SalesNew() {
         reportName="Revenue_New_Report"
         reportType="revenue"
         branchName={
-          dropdowns?.branches?.find(branch => branch.id === appliedBranchId)
+          dropdowns?.branches?.find((branch) => branch.id === appliedBranchId)
             ?.name
         }
         filters={{

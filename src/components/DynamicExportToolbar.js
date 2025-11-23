@@ -25,7 +25,7 @@ const DynamicExportToolbar = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const router = useRouter()
-  const dropdowns = useSelector(store => store.dropdowns)
+  const dropdowns = useSelector((store) => store.dropdowns)
 
   // Generate dynamic file name based on context
   const generateDynamicFileName = (format = 'csv') => {
@@ -38,7 +38,7 @@ const DynamicExportToolbar = ({
     // Get branch name from dropdowns if not provided
     const currentBranchName =
       branchName ||
-      dropdowns?.branches?.find(branch => branch.id === branchName)?.name ||
+      dropdowns?.branches?.find((branch) => branch.id === branchName)?.name ||
       'All_Branches'
 
     // Use enhanced file naming with filters
@@ -54,7 +54,7 @@ const DynamicExportToolbar = ({
     })
   }
 
-  const handleExportClick = event => {
+  const handleExportClick = (event) => {
     setAnchorEl(event.currentTarget)
   }
 
@@ -62,7 +62,7 @@ const DynamicExportToolbar = ({
     setAnchorEl(null)
   }
 
-  const handleExportFormat = format => {
+  const handleExportFormat = (format) => {
     const fileName = generateDynamicFileName(format)
 
     // Convert data to the requested format
@@ -104,15 +104,15 @@ const DynamicExportToolbar = ({
     if (!data || data.length === 0) return ''
 
     // Get visible columns
-    const visibleColumns = columns.filter(col => col.field && col.headerName)
+    const visibleColumns = columns.filter((col) => col.field && col.headerName)
 
     // Create header row
-    const headers = visibleColumns.map(col => col.headerName).join(',')
+    const headers = visibleColumns.map((col) => col.headerName).join(',')
 
     // Create data rows
-    const rows = data.map(row => {
+    const rows = data.map((row) => {
       return visibleColumns
-        .map(col => {
+        .map((col) => {
           const value = row[col.field]
           // Escape commas and quotes in CSV
           if (
@@ -133,15 +133,15 @@ const DynamicExportToolbar = ({
   const convertToText = (data, columns) => {
     if (!data || data.length === 0) return ''
 
-    const visibleColumns = columns.filter(col => col.field && col.headerName)
+    const visibleColumns = columns.filter((col) => col.field && col.headerName)
 
     // Create header
-    const headers = visibleColumns.map(col => col.headerName).join('\t')
+    const headers = visibleColumns.map((col) => col.headerName).join('\t')
 
     // Create data rows
-    const rows = data.map(row => {
+    const rows = data.map((row) => {
       return visibleColumns
-        .map(col => {
+        .map((col) => {
           return row[col.field] || ''
         })
         .join('\t')

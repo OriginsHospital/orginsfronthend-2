@@ -39,7 +39,7 @@ const ExportTestComponent = () => {
     { field: 'category', headerName: 'Category', width: 150 },
   ]
 
-  const handleTestExport = format => {
+  const handleTestExport = (format) => {
     const options = {
       reportName: 'Test_Report',
       reportType: 'test',

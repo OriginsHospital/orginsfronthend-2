@@ -56,10 +56,10 @@ const formats = ['csv', 'xlsx', 'pdf', 'json', 'txt']
 export const testBasicFileNaming = () => {
   console.log('=== Testing Basic File Naming ===')
 
-  testScenarios.forEach(scenario => {
+  testScenarios.forEach((scenario) => {
     console.log(`\n${scenario.name}:`)
 
-    formats.forEach(format => {
+    formats.forEach((format) => {
       const fileName = generateReportFileName({
         reportName: scenario.reportName,
         reportType: scenario.reportType,
@@ -81,10 +81,10 @@ export const testBasicFileNaming = () => {
 export const testEnhancedFileNaming = () => {
   console.log('\n=== Testing Enhanced File Naming ===')
 
-  testScenarios.forEach(scenario => {
+  testScenarios.forEach((scenario) => {
     console.log(`\n${scenario.name}:`)
 
-    formats.forEach(format => {
+    formats.forEach((format) => {
       const fileName = generateEnhancedReportFileName({
         reportName: scenario.reportName,
         reportType: scenario.reportType,
@@ -116,7 +116,7 @@ export const testContextDetection = () => {
     '/reports/unknown',
   ]
 
-  testPaths.forEach(path => {
+  testPaths.forEach((path) => {
     const context = detectReportContext(path, {})
     console.log(`Path: ${path}`)
     console.log(`  Report Name: ${context.reportName}`)
@@ -143,7 +143,7 @@ export const testFileNameSanitization = () => {
     'Report.with.dots',
   ]
 
-  testNames.forEach(name => {
+  testNames.forEach((name) => {
     const sanitized = sanitizeFileName(name)
     console.log(`Original: "${name}"`)
     console.log(`Sanitized: "${sanitized}"`)
@@ -163,7 +163,7 @@ export const testTimestampGeneration = () => {
     new Date('2025-01-01T00:00:00'),
   ]
 
-  dates.forEach(date => {
+  dates.forEach((date) => {
     const timestamp = generateTimestamp(date)
     console.log(`Date: ${date.toISOString()}`)
     console.log(`Timestamp: ${timestamp}`)
@@ -179,7 +179,7 @@ export const testFileExtensionDetection = () => {
 
   const testFormats = ['csv', 'xlsx', 'xls', 'pdf', 'json', 'txt', 'unknown']
 
-  testFormats.forEach(format => {
+  testFormats.forEach((format) => {
     const extension = getFileExtension(format)
     console.log(`Format: ${format} -> Extension: ${extension}`)
   })

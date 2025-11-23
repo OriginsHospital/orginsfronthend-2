@@ -25,7 +25,7 @@ const ReportWithDynamicExport = ({
   ...props
 }) => {
   const router = useRouter()
-  const dropdowns = useSelector(store => store.dropdowns)
+  const dropdowns = useSelector((store) => store.dropdowns)
   const [exportOptions, setExportOptions] = useState({
     includeTimestamp: true,
     includeUniqueId: false,
@@ -42,7 +42,7 @@ const ReportWithDynamicExport = ({
     // Get branch name from dropdowns if not provided
     const currentBranchName =
       branchName ||
-      dropdowns?.branches?.find(branch => branch.id === branchName)?.name ||
+      dropdowns?.branches?.find((branch) => branch.id === branchName)?.name ||
       'All_Branches'
 
     // Use enhanced file naming with filters
@@ -59,7 +59,7 @@ const ReportWithDynamicExport = ({
   }
 
   // Handle export with dynamic naming
-  const handleExport = format => {
+  const handleExport = (format) => {
     const fileName = generateDynamicFileName(format)
     console.log(`Exporting ${format} with filename: ${fileName}`)
 

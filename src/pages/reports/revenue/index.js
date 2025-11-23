@@ -20,17 +20,14 @@ import dayjs from 'dayjs'
 import React, { useContext, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
+import { toast } from 'react-toastify'
+import { toastconfig } from '@/utils/toastconfig'
 import { hasRevenueAccess } from '@/utils/revenueAccess'
-import { Redirect } from '@/components/Redirect'
-function Sales() {
-  const userDetails = useSelector(store => store.user)
-  const router = useRouter()
 
-  // Check if user has access to revenue reports
-  if (!hasRevenueAccess(userDetails?.email)) {
-    return <Redirect redirectURL="/home" />
-  }
-  const dropdowns = useSelector(store => store.dropdowns)
+function Sales() {
+  const router = useRouter()
+  const userDetails = useSelector((store) => store.user)
+  const dropdowns = useSelector((store) => store.dropdowns)
   const [fromDate, setFromDate] = useState(new Date())
   const [toDate, setToDate] = useState(new Date())
   const [branchId, setBranchId] = useState('')
@@ -42,6 +39,18 @@ function Sales() {
   const [appliedFromDate, setAppliedFromDate] = useState(null)
   const [appliedToDate, setAppliedToDate] = useState(null)
   const [appliedBranchId, setAppliedBranchId] = useState('')
+
+  // Access control: Check if user has revenue access
+  useEffect(() => {
+    if (userDetails?.email && !hasRevenueAccess(userDetails.email)) {
+      toast.error(
+        'You do not have permission to access Revenue Reports.',
+        toastconfig,
+      )
+      router.replace('/home')
+      return
+    }
+  }, [userDetails?.email, router])
 
   useEffect(() => {
     if (dropdowns?.branches?.length > 0) {
@@ -83,22 +92,30 @@ function Sales() {
           : 'Missing',
         branchId: appliedBranchId || 'Missing',
       })
-      const response = await SalesReportDashboard(
-        userDetails?.accessToken,
-        dayjs(appliedFromDate).format('YYYY-MM-DD'),
-        dayjs(appliedToDate).format('YYYY-MM-DD'),
-        appliedBranchId,
-      )
-      console.log('Revenue API Response:', response)
-
-      // Handle 403 Forbidden response from backend
-      if (response.status === 403) {
-        throw new Error(
-          'Access Denied: You do not have permission to view revenue reports',
+      try {
+        const response = await SalesReportDashboard(
+          userDetails?.accessToken,
+          dayjs(appliedFromDate).format('YYYY-MM-DD'),
+          dayjs(appliedToDate).format('YYYY-MM-DD'),
+          appliedBranchId,
         )
+        console.log('Revenue API Response:', response)
+        return response.data
+      } catch (error) {
+        // Handle 403 Forbidden (unauthorized access)
+        if (
+          error?.message?.includes('Access restricted') ||
+          error?.response?.status === 403
+        ) {
+          toast.error(
+            'You do not have permission to access Revenue Reports.',
+            toastconfig,
+          )
+          router.replace('/home')
+          throw error
+        }
+        throw error
       }
-
-      return response.data
     },
     enabled:
       userDetails.accessToken &&
@@ -117,12 +134,12 @@ function Sales() {
       if (paymentMode) {
         const filteredSalesData =
           salesDashboardData.salesData?.filter(
-            item => item.paymentMode === paymentMode,
+            (item) => item.paymentMode === paymentMode,
           ) || []
 
         const filteredReturnData =
           salesDashboardData.returnData?.filter(
-            item => item.paymentMode === paymentMode,
+            (item) => item.paymentMode === paymentMode,
           ) || []
 
         // Recalculate totals from filtered data
@@ -158,9 +175,7 @@ function Sales() {
   }
 
   const handleResetFilters = () => {
-    const defaultFrom = dayjs()
-      .subtract(30, 'day')
-      .toDate()
+    const defaultFrom = dayjs().subtract(30, 'day').toDate()
     const defaultTo = new Date()
     const defaultBranch = dropdowns?.branches?.[0]?.id || ''
     setFromDate(defaultFrom)
@@ -171,6 +186,11 @@ function Sales() {
     setAppliedFromDate(defaultFrom)
     setAppliedToDate(defaultTo)
     setAppliedBranchId(defaultBranch)
+  }
+
+  // Don't render if user doesn't have access
+  if (userDetails?.email && !hasRevenueAccess(userDetails.email)) {
+    return null
   }
 
   return (
@@ -219,7 +239,7 @@ function Sales() {
           value={fromDate ? dayjs(fromDate) : null}
           name="fromDate"
           format="DD/MM/YYYY"
-          onChange={newValue => setFromDate(newValue)}
+          onChange={(newValue) => setFromDate(newValue)}
         />
         <DatePicker
           label="To Date"
@@ -229,7 +249,7 @@ function Sales() {
           sx={{ width: '150px' }}
           value={toDate ? dayjs(toDate) : null}
           name="fromDate"
-          onChange={newValue => setToDate(newValue)}
+          onChange={(newValue) => setToDate(newValue)}
         />
         <Grid item xs={12} sm={3}>
           <FormControl
@@ -242,7 +262,7 @@ function Sales() {
               label="Branch"
               name="branchId"
               value={branchId}
-              onChange={e => setBranchId(e.target.value)}
+              onChange={(e) => setBranchId(e.target.value)}
               className="flex"
               placeholder="branch"
             >
@@ -266,7 +286,7 @@ function Sales() {
               label="Payment Mode"
               name="paymentMode"
               value={paymentMode}
-              onChange={e => setPaymentMode(e.target.value)}
+              onChange={(e) => setPaymentMode(e.target.value)}
               className="flex"
             >
               <MenuItem value="">All</MenuItem>
@@ -306,7 +326,7 @@ function Sales() {
         reportName="Revenue_Report"
         reportType="revenue"
         branchName={
-          dropdowns?.branches?.find(branch => branch.id === appliedBranchId)
+          dropdowns?.branches?.find((branch) => branch.id === appliedBranchId)
             ?.name
         }
         filters={{

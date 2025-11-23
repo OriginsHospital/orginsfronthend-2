@@ -2,7 +2,7 @@ import { API_ROUTES } from './constants'
 import { useRouter } from 'next/router'
 import { useSelector, useDispatch } from 'react-redux'
 
-export const getLoggedUserInfo = async token => {
+export const getLoggedUserInfo = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -21,7 +21,7 @@ export const getLoggedUserInfo = async token => {
   return response.json()
 }
 
-export const getNewAccessToken = async token => {
+export const getNewAccessToken = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -76,7 +76,7 @@ export const getUsersList = async (token, isvalidusers) => {
   return data
 }
 
-export const getValidUsersList = async token => {
+export const getValidUsersList = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -131,7 +131,7 @@ export const getModules = async () => {
   // console.log("modules list", data);
   return data
 }
-export const getRoleDetails = async roleid => {
+export const getRoleDetails = async (roleid) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${localStorage.getItem('token')}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -170,7 +170,7 @@ export const getRoleDetails = async roleid => {
 //         .catch((error) => console.error(error));
 
 // }
-export const getUserDetails = async userid => {
+export const getUserDetails = async (userid) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${localStorage.getItem('token')}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -223,7 +223,7 @@ export const validateUser = async (row, Permissions) => {
   return data
 }
 
-export const logout = async token => {
+export const logout = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -289,7 +289,7 @@ export const getPatientTreatmentCycles = async (token, searchValue) => {
   return response.json()
 }
 
-export const getDonarInformation = async token => {
+export const getDonarInformation = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -328,7 +328,7 @@ export const saveDonarRecord = async (token, payload) => {
   myHeaders.append('Authorization', `Bearer ${token}`)
 
   const body = new FormData()
-  Object.keys(payload).forEach(key => {
+  Object.keys(payload).forEach((key) => {
     if (payload[key]) {
       body.append(key, payload[key])
     }
@@ -354,7 +354,7 @@ export const updateDonarRecord = async (token, payload) => {
   myHeaders.append('Authorization', `Bearer ${token}`)
 
   const body = new FormData()
-  Object.keys(payload).forEach(key => {
+  Object.keys(payload).forEach((key) => {
     if (payload[key]) {
       body.append(key, payload[key])
     }
@@ -392,7 +392,7 @@ export const deleteDonorFile = async (token, payload) => {
   return response.json()
 }
 
-export const getDropdowns = async token => {
+export const getDropdowns = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -424,7 +424,7 @@ export const getPatientByAadharOrMobile = async (token, searchValue) => {
   return response.json()
 }
 
-export const getCities = async function(token, stateId) {
+export const getCities = async function (token, stateId) {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -448,7 +448,7 @@ export const createPatientRecord = async (
   const formData = new FormData()
   const { aadhaarCard, marriageCertificate, affidavit, ...rest } = payload
 
-  Object.keys(rest).forEach(key => {
+  Object.keys(rest).forEach((key) => {
     if (typeof payload[key] === 'object') {
       formData.append(key, JSON.stringify(payload[key]))
     } else {
@@ -495,7 +495,7 @@ export const editPatientRecord = async (
 ) => {
   const formData = new FormData()
   const { aadhaarCard, marriageCertificate, affidavit, ...rest } = payload
-  Object.keys(rest).forEach(key => {
+  Object.keys(rest).forEach((key) => {
     // console.log(key, payload[key])
     if (typeof payload[key] === 'object') {
       formData.append(key, JSON.stringify(payload[key]))
@@ -668,7 +668,7 @@ export const getVisitInfoById = async (token, visitId) => {
   return response.json()
 }
 
-export const getDoctorsList = async token => {
+export const getDoctorsList = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -735,7 +735,7 @@ export const saveDoctorAvailability = async (token, payload) => {
   return response.json()
 }
 
-export const getDoctorsForAvailability = async token => {
+export const getDoctorsForAvailability = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -768,7 +768,7 @@ export const createConsultationOrTreatment = async (token, payload) => {
   return response.json()
 }
 // /api/getTreatmentTypes
-export const getTreatmentTypes = async token => {
+export const getTreatmentTypes = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -1417,7 +1417,7 @@ export const getSavedLabTestValues = async (
   return response.json()
 }
 
-export const getProfileDetails = async token => {
+export const getProfileDetails = async (token) => {
   // call api
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
@@ -1602,7 +1602,7 @@ export const saveGrnDetails = async (token, payload) => {
   return response.json()
 }
 
-export const getAllGrnData = async token => {
+export const getAllGrnData = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -1633,7 +1633,7 @@ export const getGrnDataById = async (token, id) => {
   return response.json()
 }
 
-export const getGRNReturnedHistory = async token => {
+export const getGRNReturnedHistory = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -1717,7 +1717,7 @@ export const sendTransactionId = async (token, payload) => {
   )
   return response.json()
 }
-export const getStockExpiryReport = async token => {
+export const getStockExpiryReport = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -1732,7 +1732,7 @@ export const getStockExpiryReport = async token => {
   )
   return response.json()
 }
-export const getPrescribedPurchaseReport = async token => {
+export const getPrescribedPurchaseReport = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -1747,7 +1747,7 @@ export const getPrescribedPurchaseReport = async token => {
   )
   return response.json()
 }
-export const getGrnVendorPaymentsReport = async token => {
+export const getGrnVendorPaymentsReport = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -1906,28 +1906,19 @@ export const SalesReportDashboard = async (
     credentials: 'include',
   })
 
-  // Check HTTP status code for 403 Forbidden
+  const data = await response.json()
+
+  // Handle 403 Forbidden response (unauthorized access)
   if (response.status === 403) {
-    return {
-      status: 403,
-      message:
-        'Access Denied: You do not have permission to view revenue reports',
-    }
+    throw new Error('Access restricted. Authorized users only.')
   }
 
-  const jsonResponse = await response.json()
-
-  // Also check if the JSON response has status 403
-  if (jsonResponse.status === 403) {
-    return {
-      status: 403,
-      message:
-        jsonResponse.message ||
-        'Access Denied: You do not have permission to view revenue reports',
-    }
+  // Handle other error statuses
+  if (!response.ok && response.status !== 403) {
+    throw new Error(data.message || 'Failed to fetch revenue data')
   }
 
-  return jsonResponse
+  return data
 }
 export const ReturnItems = async (token, payload) => {
   const myHeaders = new Headers()
@@ -2011,7 +2002,7 @@ export const SaveScanResult = async (token, payload) => {
   )
   return response.json()
 }
-export const getFormFTemplate = async token => {
+export const getFormFTemplate = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -2045,7 +2036,7 @@ export const saveGrnPayments = async (token, payload) => {
 }
 //GRN_SALES_REPORT
 
-export const grnSalesReport = async token => {
+export const grnSalesReport = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -2239,9 +2230,7 @@ export const getExpenses = async (token, filters = {}) => {
   })
 
   const queryString = queryParams.toString()
-  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}${
-    API_ROUTES.GET_EXPENSES
-  }${queryString ? `?${queryString}` : ''}`
+  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}${API_ROUTES.GET_EXPENSES}${queryString ? `?${queryString}` : ''}`
 
   console.log('API Call - URL:', url)
   console.log('API Call - Filters:', filters)
@@ -2291,7 +2280,7 @@ export const editExpense = async (token, payload) => {
   return response.json()
 }
 
-export const getOTDropdowns = async token => {
+export const getOTDropdowns = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -2658,7 +2647,7 @@ export const downloadConsentFormById = async (token, id, patientId) => {
       redirect: 'follow',
       credentials: 'include',
     },
-  ).then(response => {
+  ).then((response) => {
     downloadPDF(response)
   })
   // downloadPDF(response)
@@ -2682,7 +2671,7 @@ export const downloadSampleFormF = async (
       redirect: 'follow',
       credentials: 'include',
     },
-  ).then(response => {
+  ).then((response) => {
     downloadPDF(response)
   })
   // downloadPDF(response)
@@ -3201,7 +3190,7 @@ export const applyPackageDiscount = async (token, payload) => {
   return response.json()
 }
 
-export const getCoupons = async token => {
+export const getCoupons = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -3296,7 +3285,7 @@ export const SaveEmbryologyTreatment = async (token, payload) => {
   const formData = new FormData()
   console.log(payload)
 
-  Object.keys(payload).forEach(key => {
+  Object.keys(payload).forEach((key) => {
     if (key != 'imageLink' && key != 'embryologyImage') {
       if (typeof payload[key] === 'object') {
         formData.append(key, JSON.stringify(payload[key]))
@@ -3333,7 +3322,7 @@ export const SaveEmbryologyTreatment = async (token, payload) => {
 export const SaveEmbryologyConsultation = async (token, payload, file) => {
   const myHeaders = new Headers()
   const formData = new FormData()
-  Object.keys(payload).forEach(key => {
+  Object.keys(payload).forEach((key) => {
     if (key != 'imageLink' && key != 'embryologyImage') {
       formData.append(key, payload[key])
     }
@@ -3367,7 +3356,7 @@ export const editEmbryologyTreatment = async (token, payload, id) => {
 
   const formData = new FormData()
   console.log(payload, id)
-  Object.keys(payload).forEach(key => {
+  Object.keys(payload).forEach((key) => {
     if (key !== 'imageLink' && key !== 'embryologyImage') {
       if (typeof payload[key] === 'object') {
         formData.append(key, JSON.stringify(payload[key]))
@@ -3406,7 +3395,7 @@ export const editEmbryologyConsultation = async (token, payload, id) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   const formData = new FormData()
-  Object.keys(payload).forEach(key => {
+  Object.keys(payload).forEach((key) => {
     if (key != 'imageLink' && key != 'embryologyImage') {
       formData.append(key, payload[key])
     }
@@ -3590,7 +3579,7 @@ export const getPaymentHistoryByVisitId = async (token, visitId) => {
   return response.json()
 }
 
-export const getAllAppointmentReasons = async token => {
+export const getAllAppointmentReasons = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -3685,7 +3674,7 @@ export const closeVisitInConsultation = async (token, payload, visitId) => {
   )
   return response.json()
 }
-export const noShowReport = async token => {
+export const noShowReport = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -3718,7 +3707,7 @@ export const getItemPurchaseHistoryReport = async (token, itemId) => {
   return response.json()
 }
 
-export const getAllIncidents = async token => {
+export const getAllIncidents = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -3784,7 +3773,7 @@ export const editIncident = async (token, payload) => {
   return response.json()
 }
 
-export const getAllOrders = async token => {
+export const getAllOrders = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -3878,7 +3867,7 @@ export const receiveOrder = async (token, payload) => {
   return response.json()
 }
 
-export const getAllDepartments = async token => {
+export const getAllDepartments = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -3895,7 +3884,7 @@ export const getAllDepartments = async token => {
   return response.json()
 }
 
-export const getAllVendors = async token => {
+export const getAllVendors = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -3929,7 +3918,7 @@ export const getAllVendorsByDepartmentId = async (token, departmentId) => {
   return response.json()
 }
 
-export const getAllSupplies = async token => {
+export const getAllSupplies = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -4066,7 +4055,7 @@ export const printPrescription = async (token, payload) => {
   return response.json()
 }
 
-export const getAllTasks = async token => {
+export const getAllTasks = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -4260,7 +4249,7 @@ export const createAlert = async (token, payload) => {
   return response.json()
 }
 
-export const getAllAlerts = async token => {
+export const getAllAlerts = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -4363,7 +4352,7 @@ export const getAvailableGrnInfoByItemId = async (
   return response.json()
 }
 
-export const getConsultantRoasters = async token => {
+export const getConsultantRoasters = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')
@@ -4426,7 +4415,7 @@ export const downloadEmbryologyReport = async (token, payload) => {
       redirect: 'follow',
       credentials: 'include',
     },
-  ).then(response => {
+  ).then((response) => {
     downloadPDF(response)
   })
 }
@@ -4442,7 +4431,7 @@ export const downloadEmbryologyImagesReport = async (token, payload) => {
       redirect: 'follow',
       credentials: 'include',
     },
-  ).then(response => {
+  ).then((response) => {
     downloadPDF(response)
   })
   return response.json()
@@ -4695,7 +4684,7 @@ export const deleteEmbryologyImage = async (token, payload) => {
   return response.json()
 }
 
-export const getIndentList = async token => {
+export const getIndentList = async (token) => {
   const myHeaders = new Headers()
   myHeaders.append('Authorization', `Bearer ${token}`)
   myHeaders.append('Content-Type', 'application/json')

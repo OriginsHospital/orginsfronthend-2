@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
  * @param {string} str - The string to sanitize
  * @returns {string} - Sanitized string safe for file names
  */
-export const sanitizeFileName = str => {
+export const sanitizeFileName = (str) => {
   if (!str) return ''
 
   return (
@@ -42,10 +42,7 @@ export const generateTimestamp = (date = new Date()) => {
  * @returns {string} - Unique ID string
  */
 export const generateUniqueId = () => {
-  return Math.random()
-    .toString(36)
-    .substr(2, 6)
-    .toUpperCase()
+  return Math.random().toString(36).substr(2, 6).toUpperCase()
 }
 
 /**
@@ -53,7 +50,7 @@ export const generateUniqueId = () => {
  * @param {string} format - Export format (csv, xlsx, pdf, etc.)
  * @returns {string} - File extension with dot
  */
-export const getFileExtension = format => {
+export const getFileExtension = (format) => {
   const formatMap = {
     csv: '.csv',
     xlsx: '.xlsx',
@@ -215,7 +212,7 @@ export const detectReportContext = (pathname, props = {}) => {
  * @param {Object} options - Configuration options
  * @returns {string} - Generated file name
  */
-export const generateEnhancedReportFileName = options => {
+export const generateEnhancedReportFileName = (options) => {
   const {
     reportName,
     reportType,

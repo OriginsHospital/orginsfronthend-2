@@ -102,15 +102,15 @@ export class ExportHandler {
     if (!data || data.length === 0) return ''
 
     // Get visible columns
-    const visibleColumns = columns.filter(col => col.field && col.headerName)
+    const visibleColumns = columns.filter((col) => col.field && col.headerName)
 
     // Create header row
-    const headers = visibleColumns.map(col => col.headerName).join(',')
+    const headers = visibleColumns.map((col) => col.headerName).join(',')
 
     // Create data rows
-    const rows = data.map(row => {
+    const rows = data.map((row) => {
       return visibleColumns
-        .map(col => {
+        .map((col) => {
           const value = row[col.field]
           // Escape commas and quotes in CSV
           if (
@@ -136,15 +136,15 @@ export class ExportHandler {
   convertToText(data, columns) {
     if (!data || data.length === 0) return ''
 
-    const visibleColumns = columns.filter(col => col.field && col.headerName)
+    const visibleColumns = columns.filter((col) => col.field && col.headerName)
 
     // Create header
-    const headers = visibleColumns.map(col => col.headerName).join('\t')
+    const headers = visibleColumns.map((col) => col.headerName).join('\t')
 
     // Create data rows
-    const rows = data.map(row => {
+    const rows = data.map((row) => {
       return visibleColumns
-        .map(col => {
+        .map((col) => {
           return row[col.field] || ''
         })
         .join('\t')
@@ -214,8 +214,8 @@ export const useExportHandler = (options = {}) => {
     exportCSV: (data, columns) => handler.exportCSV(data, columns, 'csv'),
     exportExcel: (data, columns) => handler.exportExcel(data, columns),
     exportPDF: (data, columns) => handler.exportPDF(data, columns),
-    generateFileName: format => handler.generateFileName(format),
-    updateOptions: newOptions => handler.updateOptions(newOptions),
+    generateFileName: (format) => handler.generateFileName(format),
+    updateOptions: (newOptions) => handler.updateOptions(newOptions),
   }
 }
 
