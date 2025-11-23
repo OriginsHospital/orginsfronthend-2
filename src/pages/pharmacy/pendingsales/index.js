@@ -49,8 +49,8 @@ const toastconfig = {
 }
 
 function PendingSalesPage() {
-  const user = useSelector(store => store.user)
-  const dropDown = useSelector(store => store.dropdowns)
+  const user = useSelector((store) => store.user)
+  const dropDown = useSelector((store) => store.dropdowns)
   const router = useRouter()
   const queryClient = useQueryClient()
   const [date, setDate] = useState(dayjs())
@@ -59,7 +59,7 @@ function PendingSalesPage() {
   let defaultBranch = user['branchDetails']?.[0]
   const [selectedbranch, setSelectedBranch] = useState(defaultBranch?.id)
   let branch = dropDown['branches']
-  branch = branch?.map(item => {
+  branch = branch?.map((item) => {
     return { ...item, label: item.name }
   })
 
@@ -109,11 +109,11 @@ function PendingSalesPage() {
       }
 
       const fetchedData = res.data || []
-      
+
       // Filter items with balance > 0 (prescribedQuantity - purchaseQuantity > 0)
       const pendingItems = []
-      fetchedData?.forEach(patientHeader => {
-        const filteredItems = patientHeader?.itemDetails?.filter(item => {
+      fetchedData?.forEach((patientHeader) => {
+        const filteredItems = patientHeader?.itemDetails?.filter((item) => {
           const purchaseQty = item.purchaseQuantity || 0
           const prescribedQty = item.prescribedQuantity || 0
           const balance = prescribedQty - purchaseQty
@@ -157,14 +157,14 @@ function PendingSalesPage() {
 
   // Handle checkbox selection
   const handleCheckboxChange = (item, type, appointmentId) => {
-    setSelectedItems(prev => {
+    setSelectedItems((prev) => {
       const uniqueKey = `${item.id}-${appointmentId}`
-      const isSelected = prev.some(i => {
+      const isSelected = prev.some((i) => {
         const iKey = `${i.id}-${i.appointmentId}`
         return iKey === uniqueKey
       })
       if (isSelected) {
-        return prev.filter(i => {
+        return prev.filter((i) => {
           const iKey = `${i.id}-${i.appointmentId}`
           return iKey !== uniqueKey
         })
@@ -183,7 +183,7 @@ function PendingSalesPage() {
 
   const isItemSelected = (item, appointmentId) => {
     const uniqueKey = `${item.id}-${appointmentId}`
-    return selectedItems.some(i => {
+    return selectedItems.some((i) => {
       const iKey = `${i.id}-${i.appointmentId}`
       return iKey === uniqueKey
     })
@@ -191,7 +191,7 @@ function PendingSalesPage() {
 
   // Mutation to move items back to PRESCRIBED (bulk operation)
   const moveToPrescribedMutation = useMutation({
-    mutationFn: async payload => {
+    mutationFn: async (payload) => {
       // For moving back to PRESCRIBED, we need to:
       // 1. Set purchaseQuantity to 0
       // 2. Clear itemPurchaseInformation
@@ -215,7 +215,7 @@ function PendingSalesPage() {
         toast.error(res?.message || 'Failed to move items', toastconfig)
       }
     },
-    onError: error => {
+    onError: (error) => {
       console.error('Error moving to prescribed:', error)
       toast.error('Failed to move items to Prescribed', toastconfig)
     },
@@ -233,7 +233,7 @@ function PendingSalesPage() {
       )
     ) {
       // Create payload for all selected items
-      const payload = selectedItems.map(item => ({
+      const payload = selectedItems.map((item) => ({
         id: item.id,
         type: item.type,
         purchaseQuantity: 0, // Reset to 0 to move back to PRESCRIBED
@@ -244,13 +244,13 @@ function PendingSalesPage() {
     }
   }
 
-  const calculateBalance = item => {
+  const calculateBalance = (item) => {
     const purchaseQty = item.purchaseQuantity || 0
     const prescribedQty = item.prescribedQuantity || 0
     return Math.max(0, prescribedQty - purchaseQty)
   }
 
-  const calculatePrice = item => {
+  const calculatePrice = (item) => {
     // Calculate price based on purchase information if available
     const purchaseInfo = item.itemPurchaseInformation
 
@@ -267,11 +267,11 @@ function PendingSalesPage() {
     }
 
     return purchaseInfoArray.reduce((total, info) => {
-        const usedQty = info.usedQuantity || info.initialUsedQuantity || 0
-        const returnedQty = info.returnedQuantity || 0
-        const netQty = usedQty - returnedQty
-        const mrp = info.mrpPerTablet || 0
-        return total + netQty * mrp
+      const usedQty = info.usedQuantity || info.initialUsedQuantity || 0
+      const returnedQty = info.returnedQuantity || 0
+      const netQty = usedQty - returnedQty
+      const mrp = info.mrpPerTablet || 0
+      return total + netQty * mrp
     }, 0)
   }
 
@@ -293,9 +293,9 @@ function PendingSalesPage() {
           <Select
             value={selectedbranch || ''}
             label="Branch"
-            onChange={e => handleBranchChange(e.target.value)}
+            onChange={(e) => handleBranchChange(e.target.value)}
           >
-            {branch?.map(b => (
+            {branch?.map((b) => (
               <MenuItem key={b.id} value={b.id}>
                 {b.name}
               </MenuItem>
@@ -308,7 +308,7 @@ function PendingSalesPage() {
           value={date}
           onChange={handleDateChange}
           format="DD-MM-YYYY"
-          renderInput={params => (
+          renderInput={(params) => (
             <TextField {...params} size="small" sx={{ minWidth: 200 }} />
           )}
         />
@@ -510,4 +510,3 @@ export default withPermission(PendingSalesPage, true, 'pharmacy', [
   ACCESS_TYPES.READ,
   ACCESS_TYPES.WRITE,
 ])
-
